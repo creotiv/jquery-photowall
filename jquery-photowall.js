@@ -94,7 +94,7 @@ var PhotoWall = {
 		$(window).resize(PhotoWall._resize);
 	},
 	_resize: function() {
-		var w = $(PhotoWall.el).width();// - getScrollBarWidth();
+		var w = $(PhotoWall.el).width(); - getScrollBarWidth();
 		var h = $(PhotoWall.el).height();	
         if($('#showbox').is(":visible") || 
            (PhotoWall._c_width == w && PhotoWall._c_height == h)
