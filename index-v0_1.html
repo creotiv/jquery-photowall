@@ -1,0 +1,248 @@
+<html>
+<head>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script type="text/javascript">
+
+function getScrollBarWidth () {
+	var inner = document.createElement('p');
+	inner.style.width = "100%";
+	inner.style.height = "200px";
+
+	var outer = document.createElement('div');
+	outer.style.position = "absolute";
+	outer.style.top = "0px";
+	outer.style.left = "0px";
+	outer.style.visibility = "hidden";
+	outer.style.width = "200px";
+	outer.style.height = "150px";
+	outer.style.overflow = "hidden";
+	outer.appendChild (inner);
+
+	document.body.appendChild (outer);
+	var w1 = inner.offsetWidth;
+	outer.style.overflow = 'scroll';
+	var w2 = inner.offsetWidth;
+	if (w1 == w2) w2 = outer.clientWidth;
+
+	document.body.removeChild (outer);
+
+	return (w1 - w2);
+};
+
+var PhotoWall = {
+	//Max image width form Picasa
+	// 94, 110, 128, 200, 220, 288, 320, 400, 512, 576, 640, 720, 800, 912, 1024, 1152, 1280, 1440, 1600 
+	imgMax:720,
+	photos: [],
+	el: null,
+	nextLineFactor: 0.95,
+	removeImageFactor: 1.15,
+	cWidth: 0,
+	cHeight: 0,
+	lineMaxHeight: 150,
+	_padding: 10,
+	_h: [],
+	_w: [],
+	_zoom: 2,
+	_zoom_trigger: null,
+	
+	
+	init: function(el,user,album) {	
+		PhotoWall.el = el;
+		PhotoWall.cWidth = $(el+' .body').width()-getScrollBarWidth();
+		PhotoWall.cHeight = $(el+' .body').height();	
+		$(el+' .body').html('');
+		
+		$(window).resize(function(){		
+			$(PhotoWall.el+' .body').html('');
+			PhotoWall.cWidth = $(PhotoWall.el+' .body').width()-getScrollBarWidth();
+			PhotoWall.cHeight = $(PhotoWall.el+' .body').height();	
+			PhotoWall.show();
+		});
+		$.ajax({
+			url: 'https://picasaweb.google.com/data/feed/api/user/'+user+'/albumid/'+album
+				 +'/?alt=json&fields=entry(title,media:group(media:thumbnail,media:'
+				 +'content))&imgmax='+PhotoWall.imgMax,
+			dataType: 'jsonp',
+			success: PhotoWall.load
+		});
+	},
+	load: function(data) {		
+		if(!data.feed.entry) return;
+		for(var i in data.feed.entry) {
+			var e = data.feed.entry[i].media$group;
+			var h = PhotoWall.lineMaxHeight;
+			var w = Math.floor(PhotoWall.lineMaxHeight/e.media$thumbnail[2].height * e.media$thumbnail[2].width);
+			PhotoWall.photos.push({bigImg:e.media$content[0].url,thumbnail:{src:e.media$thumbnail[2].url,width:w,height:h}});
+		}
+		PhotoWall.show();
+	},
+	show: function() {
+		if(!PhotoWall.photos) return;
+		var line = [];
+		var totalWidth = 0;	
+		
+		var showLine = function(line,tW,last) {
+			var ln = $("<div class='line'></div>").appendTo(PhotoWall.el+' .body'); 
+			var hCoef = PhotoWall.cWidth / tW;
+			if(last)
+				var hCoef = 1;
+			var l = 0;
+			var max = line.length;			
+			for(var k in line) {	
+				var w = Math.round(line[k].thumbnail.width*hCoef);
+				l += w+PhotoWall._padding;
+				if(max-1 == k && !last) {
+					w += PhotoWall.cWidth - l;
+					l += PhotoWall.cWidth - l;
+				}
+				ln.append($('<a href="'+line[k].bigImg+'">'
+					+'<img class="effectzoom" src="'+line[k].thumbnail.src+'" width="'
+					+w+'" height="'
+					+Math.round(line[k].thumbnail.height*hCoef)+'" /></a>').css('opacity',0).delay(Math.random()*(1000 - 300)+300).animate({"opacity":1},{duration:1000}));
+			}
+		};
+		
+		for(var i in PhotoWall.photos) {	
+			var e = PhotoWall.photos[i];
+			line.push(e);
+			totalWidth += e.thumbnail.width+PhotoWall._padding;
+			
+			if(totalWidth >= PhotoWall.cWidth*PhotoWall.nextLineFactor && totalWidth <= PhotoWall.cWidth*PhotoWall.removeImageFactor) {
+				showLine(line,totalWidth);
+				line = [];
+				totalWidth = 0;
+			} else if(totalWidth >= PhotoWall.cWidth*PhotoWall.nextLineFactor && totalWidth > PhotoWall.cWidth*PhotoWall.removeImageFactor) {
+				line.pop();
+				showLine(line,totalWidth-e.thumbnail.width-PhotoWall._padding);
+				line = [e];
+				totalWidth = e.thumbnail.width+PhotoWall._padding;
+			}	
+		}
+		if(line)
+			showLine(line,totalWidth,1);
+		PhotoWall.zoom();
+
+	},
+	zoom: function() {
+		PhotoWall._w = [];
+		PhotoWall._h = [];
+		var type = 'display:inline-block;';
+		if($.browser.msie) 
+			type = 'float:left;';
+		for (i = 0; i < $(".effectzoom").length; i++) {
+			$(".effectzoom").eq(i).parent().wrap("<div class=\"photo\" style=\""+type+" position:relative;\"></div>");
+			var aux = i;
+			PhotoWall._w[aux] = $(".effectzoom").eq(i).width();
+			PhotoWall._h[aux] = $(".effectzoom").eq(i).height();
+			$(".photo").eq(aux).css({
+				"width": PhotoWall._w[aux],
+				"height": PhotoWall._h[aux],
+				"top":"0px",
+				"left":"0px"
+			});
+			$(".effectzoom").eq(i).css({
+				"position": "absolute",
+				"top":"0px",
+				"left":"0px"
+			});
+			$(".effectzoom").eq(i).mouseover(function () {
+				var tht = this;
+				PhotoWall._zoom_trigger = this;
+				setTimeout(function(){
+					var th = tht;
+					if(PhotoWall._zoom_trigger != th) return;
+					th.src = th.src+'/../../w'+Math.round(PhotoWall._w[($(".effectzoom").index($(th)))] * PhotoWall._zoom)+'-h'
+										+Math.round(PhotoWall._h[($(".effectzoom").index($(th)))] * PhotoWall._zoom)+'/';
+					
+					var w  = PhotoWall._w[($(".effectzoom").index($(th)))] * PhotoWall._zoom;
+					var h  = PhotoWall._h[($(".effectzoom").index($(th)))] * PhotoWall._zoom;
+					var dw = PhotoWall._w[($(".effectzoom").index($(th)))] * PhotoWall._zoom - PhotoWall._w[($(".effectzoom").index($(th)))];
+					var dh = PhotoWall._h[($(".effectzoom").index($(th)))] * PhotoWall._zoom - PhotoWall._h[($(".effectzoom").index($(th)))];
+					var l  = -(dw) * 0.5-PhotoWall._padding*0.5;
+					var t  = -(dh) * 0.5-PhotoWall._padding*0.5;
+					var o  = $(th).offset(); 
+					var wn = $(window);
+					
+					if(o.left + l + w > wn.width())
+						l -= (o.left + l + w) - wn.width()+PhotoWall._padding*1.5; 
+					if(o.left + l < 0)
+						l -= (o.left + l)-PhotoWall._padding*0.5;
+					if(o.top + t + h > wn.height())
+						t -= (o.top + t + h) - wn.height()+PhotoWall._padding*1.5; 
+					if(o.top + t < 0)
+						t -= (o.top + t)-PhotoWall._padding*0.5;
+					
+					$(th).animate({
+						"width": w,
+						"height": h,
+						"left": l,
+						"top": t,
+						"padding": PhotoWall._padding*0.5
+					}, {
+						queue: false,
+						duration: 100
+					});
+					$(th).css("z-index", 1000);
+				},500);
+			});
+			$(".effectzoom").eq(i).mouseout(function () {
+				PhotoWall._zoom_trigger = null;
+				$(this).animate({
+					"width": PhotoWall._w[($(".effectzoom").index($(this)))],
+					"height": PhotoWall._h[($(".effectzoom").index($(this)))],
+					"left": 0,
+					"top": 0,
+					"padding":0
+				}, {
+					queue: false,
+					duration: 100
+				});
+				$(this).css("z-index",1);
+			});
+		}
+
+	}
+
+}
+
+$(document).ready(function(){
+PhotoWall.init('#gallery','118283508237214694671','5284120184954723249');
+});
+
+</script>
+
+<style type="text/css">
+html,body {
+	padding:0;
+	margin: 0;
+	background:#999;
+}
+* {outline:none;}
+div.photo {
+	margin:5px;
+}
+div.photo a {
+	text-decoration: none;
+	outline: none;
+	border: none;
+}
+div.photo img {
+	background:white;
+	border:none;
+	outline: none;
+	zoom: 1;
+}
+#gallery .body{
+}
+</style>
+</head>
+<body>
+
+
+<div id="gallery">
+	<div class="body">
+	</div>
+</div>
+</body>
+</html>
