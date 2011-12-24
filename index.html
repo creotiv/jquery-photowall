@@ -44,6 +44,8 @@
 
     <h1><a href="https://github.com/creotiv/jquery-photowall">jQuery-PhotoWall</a>
       <span class="small">by <a href="https://github.com/creotiv">creotiv</a></span></h1>
+  
+    <div style="float:left;margin-top: 5px;width:80px;"><div class="g-plusone" data-size="medium"></div></div><div style="float:left;margin-top:5px;width:90px;"><a href="https://twitter.com/share" class="twitter-share-button">Tweet</a></div><div class="fb-like" data-send="false" data-layout="button_count" data-width="100" data-show-faces="false" style="float:left;margin-top:5px;width:80px;"></div>
 
     <div class="description">
       PhotoWall created with jQuery
@@ -80,7 +82,36 @@
     </div>
 
   </div>
+<script type="text/javascript">
+(function(w, d, s) {
 
+  function go(){
+
+    var js, fjs = d.getElementsByTagName(s)[0], load = function(url, id) {
+
+    if (d.getElementById(id)) {return;}
+
+	  js = d.createElement(s); js.src = url; js.id = id;
+
+	  fjs.parentNode.insertBefore(js, fjs);
+
+	};
+
+    load('https://connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk');
+
+    load('https://apis.google.com/js/plusone.js', 'gplus1js');
+
+    load('https://platform.twitter.com/widgets.js', 'tweetjs');
+
+  }
+
+  if (w.addEventListener) { w.addEventListener("load", go, false); }
+
+  else if (w.attachEvent) { w.attachEvent("onload",go); }
+
+}(window, document, 'script'));
+
+</script>
 </body>
 </html>
 
