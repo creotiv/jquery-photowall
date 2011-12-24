@@ -428,8 +428,8 @@ var ShowBox = {
                 '<div id="showbox" style="display:none;">'
                 +'    <div id="showbox-exit"></div>'
                 +'    <div class="showbox-image unselect" unselectable="on">'
-                +'        <div id="showbox-loader"></div>'
                 +'    </div>'
+                +'    <div id="showbox-loader"></div>'
                 +'    <div class="showbox-menubar unselect" unselectable="on" style="display:none">'
                 +         ShowBox.options.menuBarContent
                 +'        </div>'
