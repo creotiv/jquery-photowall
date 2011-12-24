@@ -44,7 +44,7 @@ div.pw-photo img {
     width: 16px;
     height: 16px;
     background: #000 url(loader.gif);
-    margin:-100px 0 0 -8px;
+    margin:-80px 0 0 -8px;
 }
 #showbox .showbox-image {
     position:relative;
