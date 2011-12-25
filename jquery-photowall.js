@@ -36,21 +36,6 @@ function $_GET(){
   return r;
 } 
 
-(function(w, d, s) {
-  function go(){
-    var js, fjs = d.getElementsByTagName(s)[0], load = function(url, id) {
-	  if (d.getElementById(id)) {return;}
-	  js = d.createElement(s); js.src = url; js.id = id;
-	  fjs.parentNode.insertBefore(js, fjs);
-	};
-    load('https://connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk');
-    load('https://apis.google.com/js/plusone.js', 'gplus1js');
-    load('https://platform.twitter.com/widgets.js', 'tweetjs');
-  }
-  if (w.addEventListener) { w.addEventListener("load", go, false); }
-  else if (w.attachEvent) { w.attachEvent("onload",go); }
-}(window, document, 'script'));
-
 /*
     TODO: Add screen size check on zoom.
 */
@@ -419,6 +404,7 @@ var ShowBox = {
         
         ShowBox._init(el_or_data);
         ShowBox._initEvents(el_or_data);
+        ShowBox._initSocials();
         ShowBox._parseGet();
     },
     _init: function(el) {
@@ -451,6 +437,18 @@ var ShowBox = {
             ShowBox._addThumb(lc,ShowBox._images[lc][i][1],i);
             i++;
         });
+    },
+    _initSocials: function(){
+        var d = document;
+        var s = 'script';
+        var js, fjs = d.getElementsByTagName(s)[0], load = function(url, id) {
+          if (d.getElementById(id)) {return;}
+          js = d.createElement(s); js.src = url; js.id = id;
+          fjs.parentNode.insertBefore(js, fjs);
+        };
+        load('https://connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk');
+        load('https://apis.google.com/js/plusone.js', 'gplus1js');
+        load('https://platform.twitter.com/widgets.js', 'tweetjs');
     },
     _initEvents: function(el) {
         if(el) {
@@ -565,13 +563,13 @@ var ShowBox = {
     _changeImage: function(ind) {
         $('#showbox-loader').show();
         $('#showbox .showbox-menubar').hide();
-        //$('#showbox .showbox-menubar div').remove();
+        $('#showbox .showbox-menubar div').remove();
         ind = parseInt(ind);
         var total = ShowBox._images[ShowBox._current].length;
         ShowBox._setCounter(ind+1,total);
-        //window.history.pushState("object or string", "Title", '?p='+(ind+1)+'&gal='+(ShowBox._current+1));
         window.location.hash = 'p='+(ind+1)+'&gal='+(ShowBox._current+1);
-        //$('#showbox .showbox-menubar').append(ShowBox.options.menuBarContent);
+        $('#showbox .showbox-menubar').append(ShowBox.options.menuBarContent);
+        ShowBox._initSocials();
         ShowBox._index = ind;
         $('#showbox .showbox-img').remove();
         ShowBox._th.removeClass('showbox-th-active');
