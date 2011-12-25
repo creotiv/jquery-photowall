@@ -268,7 +268,8 @@ var PhotoWall = {
 			            thn.remove();
 				    }
 	            },
-	            menuBarContent: '<div style="float:left;margin-top: 5px;width:80px;"><div class="g-plusone" data-size="medium"></div></div><div style="float:left;margin-top:5px;width:90px;"><a href="https://twitter.com/share" class="twitter-share-button">Tweet</a></div><div style="float:left;margin-top:5px;width:80px;"><iframe src="//www.facebook.com/plugins/like.php?href&amp;send=false&amp;layout=button_count&amp;width=100&amp;show_faces=false&amp;action=like&amp;colorscheme=light&amp;font&amp;height=21&amp;appId=280907615294211" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:100px; height:21px;" allowTransparency="true"></iframe></div>'
+	            menuBarContent: '<div style="float:left;margin-top: 5px;width:80px;"><div class="g-plusone" data-size="medium"></div></div><div style="float:left;margin-top:5px;width:90px;"><a href="https://twitter.com/share" class="twitter-share-button">Tweet</a></div><div style="float:left;margin-top:5px;width:80px;"><iframe src="//www.facebook.com/plugins/like.php?href&amp;send=false&amp;layout=button_count&amp;width=100&amp;show_faces=false&amp;action=like&amp;colorscheme=light&amp;font&amp;height=21&amp;appId=280907615294211" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:100px; height:21px;" allowTransparency="true"></iframe></div>',
+	            socialUpdate: true
 		    });
 	},
 	/*
@@ -411,7 +412,8 @@ var ShowBox = {
     _th: null,
     options: {
         closeCallback: function(){},
-        menuBarContent:''
+        menuBarContent:'',
+        socialUpdate: true
     },
 
     init: function(el_or_data,op) {
@@ -563,8 +565,12 @@ var ShowBox = {
         });
     },
     _updateSocials: function() {
-        if(typeof(gapi) !== 'undefined')
-        gapi.load('googleapis.client:plusone:gcm_ppb');
+        if(ShowBox.options.socialUpdate) {
+            if(typeof(gapi) !== 'undefined')
+                gapi.load('googleapis.client:plusone:gcm_ppb');
+            if(typeof(twttr) !== 'undefined')
+                twttr.widgets.load();
+        }
     },
     _changeImage: function(ind) {
         $('#showbox-loader').show();
@@ -573,7 +579,6 @@ var ShowBox = {
         ind = parseInt(ind);
         var total = ShowBox._images[ShowBox._current].length;
         ShowBox._setCounter(ind+1,total);
-        //window.history.pushState("object or string", "Title", '?p='+(ind+1)+'&gal='+(ShowBox._current+1));
         window.location.hash = 'p='+(ind+1)+'&gal='+(ShowBox._current+1);
         $('#showbox .showbox-menubar').append(ShowBox.options.menuBarContent);
         ShowBox._updateSocials();
