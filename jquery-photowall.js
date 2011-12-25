@@ -562,7 +562,7 @@ var ShowBox = {
             ShowBox._changeImage(ind);
         });
     },
-    _updateSocials(): function() {
+    _updateSocials: function() {
         gapi.load('googleapis.client:plusone:gcm_ppb');
     },
     _changeImage: function(ind) {
