@@ -268,7 +268,8 @@ var PhotoWall = {
 			            thn.remove();
 				    }
 	            },
-	            menuBarContent: '<div style="float:left;margin-top: 5px;width:80px;"><div class="g-plusone" data-size="medium"></div></div><div style="float:left;margin-top:5px;width:90px;"><a href="https://twitter.com/share" class="twitter-share-button">Tweet</a></div><div class="fb-like" data-send="false" data-layout="button_count" data-width="100" data-show-faces="false" style="float:left;margin-top:5px;width:80px;"></div>'
+	            menuBarContent: '<div style="float:left;margin-top: 5px;width:80px;"><div id="gplus" class="g-plusone" data-size="medium"></div></div><div style="float:left;margin-top:5px;width:90px;"><a href="https://twitter.com/share" class="twitter-share-button">Tweet</a></div><div style="float:left;margin-top:5px;width:80px;" id="fblike"><fb:like send="false" layout="button_count" width="100" show_faces="false"></fb:like></div>',
+	            socialUpdate: true
 		    });
 	},
 	/*
@@ -411,7 +412,8 @@ var ShowBox = {
     _th: null,
     options: {
         closeCallback: function(){},
-        menuBarContent:''
+        menuBarContent:'',
+        socialUpdate: true
     },
 
     init: function(el_or_data,op) {
@@ -427,12 +429,12 @@ var ShowBox = {
             $(
                 '<div id="showbox" style="display:none;">'
                 +'    <div id="showbox-exit"></div>'
+                +'    <div class="showbox-menubar unselect" unselectable="on" style="display:none !important;">'
+                +         ShowBox.options.menuBarContent
+                +'    </div>'
                 +'    <div class="showbox-image unselect" unselectable="on">'
                 +'    </div>'
-				+'    <div id="showbox-loader"></div>'
-                +'    <div class="showbox-menubar unselect" unselectable="on" style="display:none">'
-                +         ShowBox.options.menuBarContent
-                +'        </div>'
+                +'    <div id="showbox-loader"></div>'
                 +'    <div class="showbox-preview unselect">'
                 +'        <div class="showbox-pv-lock"></div>'
                 +'        <div class="showbox-th-counter" unselectable="on"></div>'
@@ -562,16 +564,35 @@ var ShowBox = {
             ShowBox._changeImage(ind);
         });
     },
+    _updateSocials: function() {
+        if(ShowBox.options.socialUpdate) {
+            if(typeof(FB) !== 'undefined')
+                 FB.XFBML.parse(document.getElementById('fblike'));
+            if(typeof(gapi) !== 'undefined') {
+                gapi.plusone.render(document.getElementById('gplus'),{
+                    'href':location.href,
+                    'annotation':'bubble',
+                    'width': 90,
+                    'align': 'left',
+                    'size': 'medium'
+                });
+            }
+            if(typeof(twttr) !== 'undefined') {
+                $('#showbox .twitter-share-button').attr('data-url',location.href);
+                twttr.widgets.load();
+            }
+        }
+    },
     _changeImage: function(ind) {
         $('#showbox-loader').show();
         $('#showbox .showbox-menubar').hide();
-        //$('#showbox .showbox-menubar div').remove();
+        $('#showbox .showbox-menubar div').remove();
         ind = parseInt(ind);
         var total = ShowBox._images[ShowBox._current].length;
         ShowBox._setCounter(ind+1,total);
-        //window.history.pushState("object or string", "Title", '?p='+(ind+1)+'&gal='+(ShowBox._current+1));
         window.location.hash = 'p='+(ind+1)+'&gal='+(ShowBox._current+1);
-        //$('#showbox .showbox-menubar').append(ShowBox.options.menuBarContent);
+        $('#showbox .showbox-menubar').append(ShowBox.options.menuBarContent);
+        ShowBox._updateSocials();
         ShowBox._index = ind;
         $('#showbox .showbox-img').remove();
         ShowBox._th.removeClass('showbox-th-active');
@@ -605,6 +626,7 @@ var ShowBox = {
         $('body').css('overflow','auto');
         $('#showbox').hide();
         ShowBox.options.closeCallback();
+        $('#showbox .showbox-menubar').hide();
         $('#showbox .showbox-image img').remove();
         $('#showbox-thc'+ShowBox._current).detach()
         .css({position:'absolute',top:'-10000px'}).appendTo('body');
