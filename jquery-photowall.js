@@ -563,6 +563,7 @@ var ShowBox = {
         });
     },
     _updateSocials: function() {
+        if(typeof(gapi) !== 'undefined')
         gapi.load('googleapis.client:plusone:gcm_ppb');
     },
     _changeImage: function(ind) {
