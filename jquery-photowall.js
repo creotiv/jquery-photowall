@@ -429,7 +429,7 @@ var ShowBox = {
             $(
                 '<div id="showbox" style="display:none;">'
                 +'    <div id="showbox-exit"></div>'
-                +'    <div class="showbox-menubar unselect" unselectable="on" style="display:none">'
+                +'    <div class="showbox-menubar unselect" unselectable="on" style="display:none !important;">'
                 +         ShowBox.options.menuBarContent
                 +'    </div>'
                 +'    <div class="showbox-image unselect" unselectable="on">'
