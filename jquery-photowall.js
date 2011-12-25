@@ -268,7 +268,7 @@ var PhotoWall = {
 			            thn.remove();
 				    }
 	            },
-	            menuBarContent: '<div style="float:left;margin-top: 5px;width:80px;"><div class="g-plusone" data-size="medium"></div></div><div style="float:left;margin-top:5px;width:90px;"><a href="https://twitter.com/share" class="twitter-share-button">Tweet</a></div><div class="fb-like" data-send="false" data-layout="button_count" data-width="100" data-show-faces="false" style="float:left;margin-top:5px;width:80px;"></div>'
+	            menuBarContent: '<div style="float:left;margin-top: 5px;width:80px;"><div class="g-plusone" data-size="medium"></div></div><div style="float:left;margin-top:5px;width:90px;"><a href="https://twitter.com/share" class="twitter-share-button">Tweet</a></div><div style="float:left;margin-top:5px;width:80px;"><iframe src="//www.facebook.com/plugins/like.php?href&amp;send=false&amp;layout=standard&amp;width=100&amp;show_faces=false&amp;action=like&amp;colorscheme=light&amp;font&amp;height=35&amp;appId=280907615294211" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:100px; height:35px;" allowTransparency="true"></iframe></div>'
 		    });
 	},
 	/*
@@ -562,6 +562,9 @@ var ShowBox = {
             ShowBox._changeImage(ind);
         });
     },
+    _updateSocials(): function() {
+        gapi.load('googleapis.client:plusone:gcm_ppb');
+    },
     _changeImage: function(ind) {
         $('#showbox-loader').show();
         $('#showbox .showbox-menubar').hide();
@@ -572,6 +575,7 @@ var ShowBox = {
         //window.history.pushState("object or string", "Title", '?p='+(ind+1)+'&gal='+(ShowBox._current+1));
         window.location.hash = 'p='+(ind+1)+'&gal='+(ShowBox._current+1);
         $('#showbox .showbox-menubar').append(ShowBox.options.menuBarContent);
+        ShowBox._updateSocials();
         ShowBox._index = ind;
         $('#showbox .showbox-img').remove();
         ShowBox._th.removeClass('showbox-th-active');
