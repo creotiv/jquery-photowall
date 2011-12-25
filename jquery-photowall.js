@@ -566,7 +566,7 @@ var ShowBox = {
     },
     _updateSocials: function() {
         if(ShowBox.options.socialUpdate) {
-            if(typeof(FB) !== 'undefine')
+            if(typeof(FB) !== 'undefined')
                  FB.XFBML.parse(document.getElementById('fblike'));
             if(typeof(gapi) !== 'undefined')
                 gapi.load('googleapis.client:plusone:gcm_ppb');
