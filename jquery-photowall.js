@@ -268,7 +268,7 @@ var PhotoWall = {
 			            thn.remove();
 				    }
 	            },
-	            menuBarContent: '<div style="float:left;margin-top: 5px;width:80px;"><div class="g-plusone" data-size="medium"></div></div><div style="float:left;margin-top:5px;width:90px;"><a href="https://twitter.com/share" class="twitter-share-button">Tweet</a></div><div style="float:left;margin-top:5px;width:80px;" id="fblike"><fb:like send="false" layout="button_count" width="100" show_faces="false"></fb:like></div>',
+	            menuBarContent: '<div style="float:left;margin-top: 5px;width:80px;" id="gplus"><div class="g-plusone" data-size="medium"></div></div><div style="float:left;margin-top:5px;width:90px;"><a href="https://twitter.com/share" class="twitter-share-button">Tweet</a></div><div style="float:left;margin-top:5px;width:80px;" id="fblike"><fb:like send="false" layout="button_count" width="100" show_faces="false"></fb:like></div>',
 	            socialUpdate: true
 		    });
 	},
@@ -569,8 +569,7 @@ var ShowBox = {
             if(typeof(FB) !== 'undefined')
                  FB.XFBML.parse(document.getElementById('fblike'));
             if(typeof(gapi) !== 'undefined') {
-                //gapi.load('googleapis.client:plusone:gcm_ppb');
-                gapi.plusone.go();
+                gapi.plusone.render(document.getElementById('gplus'),{href:location.href});
             }
             if(typeof(twttr) !== 'undefined') {
                 $('#showbox .twitter-share-button').attr('data-url',location.href);
