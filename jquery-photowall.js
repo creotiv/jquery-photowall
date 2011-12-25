@@ -565,13 +565,13 @@ var ShowBox = {
     _changeImage: function(ind) {
         $('#showbox-loader').show();
         $('#showbox .showbox-menubar').hide();
-        //$('#showbox .showbox-menubar div').remove();
+        $('#showbox .showbox-menubar div').remove();
         ind = parseInt(ind);
         var total = ShowBox._images[ShowBox._current].length;
         ShowBox._setCounter(ind+1,total);
         //window.history.pushState("object or string", "Title", '?p='+(ind+1)+'&gal='+(ShowBox._current+1));
         window.location.hash = 'p='+(ind+1)+'&gal='+(ShowBox._current+1);
-        //$('#showbox .showbox-menubar').append(ShowBox.options.menuBarContent);
+        $('#showbox .showbox-menubar').append(ShowBox.options.menuBarContent);
         ShowBox._index = ind;
         $('#showbox .showbox-img').remove();
         ShowBox._th.removeClass('showbox-th-active');
