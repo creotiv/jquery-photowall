@@ -569,12 +569,13 @@ var ShowBox = {
             if(typeof(FB) !== 'undefined')
                  FB.XFBML.parse(document.getElementById('fblike'));
             if(typeof(gapi) !== 'undefined') {
+                $('canon').attr('href',location.href);
                 gapi.plusone.render(document.getElementById('gplus'),{
-                    href:location.href,
-                    annotation:'bubble',
-                    width: 90,
-                    align: 'left',
-                    size: 'medium'
+                    'href':location.href,
+                    'annotation':'bubble',
+                    'width': 90,
+                    'align': 'left',
+                    'size': 'medium'
                 });
             }
             if(typeof(twttr) !== 'undefined') {
