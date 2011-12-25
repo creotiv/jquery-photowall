@@ -626,6 +626,7 @@ var ShowBox = {
         $('body').css('overflow','auto');
         $('#showbox').hide();
         ShowBox.options.closeCallback();
+        $('#showbox .showbox-menubar').hide();
         $('#showbox .showbox-image img').remove();
         $('#showbox-thc'+ShowBox._current).detach()
         .css({position:'absolute',top:'-10000px'}).appendTo('body');
