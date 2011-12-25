@@ -429,12 +429,12 @@ var ShowBox = {
             $(
                 '<div id="showbox" style="display:none;">'
                 +'    <div id="showbox-exit"></div>'
+                +'    <div class="showbox-menubar unselect" unselectable="on" style="display:none">'
+                +         ShowBox.options.menuBarContent
+                +'    </div>'
                 +'    <div class="showbox-image unselect" unselectable="on">'
                 +'    </div>'
                 +'    <div id="showbox-loader"></div>'
-                +'    <div class="showbox-menubar unselect" unselectable="on" style="display:none">'
-                +         ShowBox.options.menuBarContent
-                +'        </div>'
                 +'    <div class="showbox-preview unselect">'
                 +'        <div class="showbox-pv-lock"></div>'
                 +'        <div class="showbox-th-counter" unselectable="on"></div>'
