@@ -569,7 +569,6 @@ var ShowBox = {
             if(typeof(FB) !== 'undefined')
                  FB.XFBML.parse(document.getElementById('fblike'));
             if(typeof(gapi) !== 'undefined') {
-                $('canon').attr('href',location.href);
                 gapi.plusone.render(document.getElementById('gplus'),{
                     'href':location.href,
                     'annotation':'bubble',
