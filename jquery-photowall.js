@@ -571,8 +571,8 @@ var ShowBox = {
             if(typeof(gapi) !== 'undefined') {
                 gapi.plusone.render(document.getElementById('gplus'),{
                     href:location.href,
-                    annotation:'inline',
-                    width: 100,
+                    annotation:'bubble',
+                    width: 90,
                     align: 'left',
                     size: 'medium'
                 });
