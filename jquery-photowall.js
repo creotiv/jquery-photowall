@@ -568,8 +568,10 @@ var ShowBox = {
         if(ShowBox.options.socialUpdate) {
             if(typeof(FB) !== 'undefined')
                  FB.XFBML.parse(document.getElementById('fblike'));
-            if(typeof(gapi) !== 'undefined')
-                gapi.load('googleapis.client:plusone:gcm_ppb');
+            if(typeof(gapi) !== 'undefined') {
+                //gapi.load('googleapis.client:plusone:gcm_ppb');
+                gapi.plusone.go();
+            }
             if(typeof(twttr) !== 'undefined') {
                 $('#showbox .twitter-share-button').attr('data-url',location.href);
                 twttr.widgets.load();
