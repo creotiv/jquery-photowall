@@ -56,29 +56,22 @@ function $_GET(){
   return r;
 } 
 
-(function(w, d, s) {
-  function go(){
-    var js, fjs = d.getElementsByTagName(s)[0], load = function(url, id) {
-	  if (d.getElementById(id)) {return;}
-	  js = d.createElement(s); js.src = url; js.id = id;
-	  fjs.parentNode.insertBefore(js, fjs);
-	};
-    load('https://connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk');
-    load('https://apis.google.com/js/plusone.js', 'gplus1js');
-    load('https://platform.twitter.com/widgets.js', 'tweetjs');
-  }
-  if (w.addEventListener) { w.addEventListener("load", go, false); }
-  else if (w.attachEvent) { w.attachEvent("onload",go); }
-}(window, document, 'script'));
-
 /*
     TODO: Add screen size check on zoom.
 */
 var PhotoWall = {
-	photos: {},
-	gallery: [],
-	el: null,
-	options: {},
+	_photos: {},
+	_el: null,
+	options: {
+        lineMaxHeight:150
+        ,padding:10
+        ,zoomAction:'mouseenter'
+        ,zoomTimeout:500
+        ,zoomDuration:300
+        ,showBoxPadding: 2
+        ,showBoxThumbSize: 60
+        ,showBoxSocial: true
+    },
 
 	_next_line_factor: 0.95,
 	_remove_image_factor: 1.15,
@@ -88,41 +81,40 @@ var PhotoWall = {
 	_zs: null,
 	_zoom_timeout: null,
 	_last_line: [],
-	_show_box_padding: 45,
-	_show_box_menubar: 35,
-	_show_box_current: null,
-	_show_box_current_ind: 0,
-    _show_box_lunched: false,
 	_must_resize: false,
 	
 	init: function(op) {	
-	    PhotoWall.options = $.extend({
-	        lineMaxHeight:150
-	        ,padding:10
-	        ,zoomAction:'mouseenter'
-	        ,zoomTimeout:500
-	        ,zoomDuration:300
-	        ,showBoxPadding: 2
-	        ,showBoxThumbSize: 60
-        },op);
-        
-		PhotoWall.el = op.el+' .body';
-		PhotoWall._c_width = $(PhotoWall.el).width()-getScrollBarWidth();
-		PhotoWall._c_height = $(PhotoWall.el).height();	
-		$(PhotoWall.el).html('');
+	    PhotoWall.options = $.extend(PhotoWall.options,op);
+
+		PhotoWall._el = op.el+' .body';
+		PhotoWall._c_width = $(PhotoWall._el).width()-getScrollBarWidth();
+		PhotoWall._c_height = $(PhotoWall._el).height();	
+		$(PhotoWall._el).html('');
 		
 		$(window).resize(PhotoWall._resize);
 	},
+	_init_socials:   function go(){
+        var s = 'script';
+        var d = document;
+        var js, fjs = d.getElementsByTagName(s)[0], load = function(url, id) {
+	      if (d.getElementById(id)) {return;}
+	      js = d.createElement(s); js.src = url; js.id = id;
+	      fjs.parentNode.insertBefore(js, fjs);
+	    };
+        load('https://connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk');
+        load('https://apis.google.com/js/plusone.js', 'gplus1js');
+        load('https://platform.twitter.com/widgets.js', 'tweetjs');
+    },
 	_resize: function() {
-		var w = $(PhotoWall.el).width();
-		var h = $(PhotoWall.el).height();	
+		var w = $(PhotoWall._el).width();
+		var h = $(PhotoWall._el).height();	
         if($('#showbox').is(":visible") || 
            (PhotoWall._c_width == w && PhotoWall._c_height == h)
         ) {PhotoWall._must_resize=true;return;}
         PhotoWall._c_width = w;
 		PhotoWall._c_height = h;	
         PhotoWall._must_resize=false;
-		$(PhotoWall.el).html('');
+		$(PhotoWall._el).html('');
 		PhotoWall.show();
 	},
 	// Here we resize all photos to max line height and replace main data array.
@@ -140,10 +132,14 @@ var PhotoWall = {
 	        items.push(data[i]);
 	    }
         PhotoWall.photoIndex = items;
-        PhotoWall.photos = data;
+        PhotoWall._photos = data;
 		PhotoWall.show();
 	},
-	// Here we resize all photos to max line height and update main data array.
+	/*
+        Not working for now.
+	    Here we resize all photos to max line height and update main data array.
+	*/
+	/*
 	update: function(data) {
 	    var items = [];
 	    for(var i in data) {
@@ -158,9 +154,10 @@ var PhotoWall = {
 	        items.push(data[i]);
 	    }
         PhotoWall.photoIndex = items;
-        PhotoWall.photos = $.extend(PhotoWall.photos,data);
+        PhotoWall._photos = $.extend(PhotoWall._photos,data);
 		PhotoWall.show(data);
 	},
+	*/
 	/* This method render images by lines to the container.
 	   If 'data' is set then images from 'data' will be appended to the container,
 	   else images from container will be replace by the images from the main array.
@@ -170,10 +167,10 @@ var PhotoWall = {
         var line = [];
 		var totalWidth = 0;	
 		if(!data) {
-		    if(!PhotoWall.photos) return;
-		    $(PhotoWall.el).html('');
+		    if(!PhotoWall._photos) return;
+		    $(PhotoWall._el).html('');
 		    $(window).scrollTop(0);
-		    imgArray = PhotoWall.photos;
+		    imgArray = PhotoWall._photos;
 		} else {
 	        imgArray   = data;
             line       = PhotoWall._last_line[0];
@@ -185,7 +182,7 @@ var PhotoWall = {
 			
 		var showLine = function(line,total_width,last) {
 		    var ln = $("<div class='line' style='float:left'></div>")
-                     .appendTo(PhotoWall.el); 
+                     .appendTo(PhotoWall._el); 
 			var hCoef = PhotoWall._c_width / total_width;
 			if(last)
 				var hCoef = 1;
@@ -269,9 +266,32 @@ var PhotoWall = {
 	    if(PhotoWall.options.zoom)
 		    PhotoWall.initZoom();
 		if(PhotoWall.options.showBox)
+		    var menuBar = '';
+		    var update  = null; 
+		    if(PhotoWall.options.showBoxSocial) {
+		        menuBar = '<div style="padding-top: 5px;width: 250px;position: relative;left: 50%;margin-left: -125px;"><div style="float:left;margin-top: 5px;width:80px;"><div id="gplus" class="g-plusone" data-size="medium"></div></div><div style="float:left;margin-top:5px;width:90px;"><a href="https://twitter.com/share" class="twitter-share-button">Tweet</a></div><div style="float:left;margin-top:5px;width:80px;" id="fblike"><fb:like send="false" layout="button_count" width="100" show_faces="false"></fb:like></div></div>';
+		        update  = function(){
+                    if(typeof(FB) !== 'undefined')
+                         FB.XFBML.parse(document.getElementById('fblike'));
+                    if(typeof(gapi) !== 'undefined') {
+                        gapi.plusone.render(document.getElementById('gplus'),{
+                            'href':location.href,
+                            'annotation':'bubble',
+                            'width': 90,
+                            'align': 'left',
+                            'size': 'medium'
+                        });
+                    }
+                    if(typeof(twttr) !== 'undefined') {
+                        $('#showbox .twitter-share-button').attr('data-url',location.href);
+                        twttr.widgets.load();
+                    }		            
+		        };
+		    }
 		    ShowBox.init('#gallery a.pw-link',{
 		        closeCallback:function(){
-		            PhotoWall._resize();
+		            if(PhotoWall._must_resize)
+		                PhotoWall._resize();
 		            if(PhotoWall._zs) {;
 			            var th = PhotoWall._zs[0];
 			            var thn = PhotoWall._zs[1];
@@ -288,9 +308,11 @@ var PhotoWall = {
 			            thn.remove();
 				    }
 	            },
-	            menuBarContent: '<div style="float:left;margin-top: 5px;width:80px;"><div id="gplus" class="g-plusone" data-size="medium"></div></div><div style="float:left;margin-top:5px;width:90px;"><a href="https://twitter.com/share" class="twitter-share-button">Tweet</a></div><div style="float:left;margin-top:5px;width:80px;" id="fblike"><fb:like send="false" layout="button_count" width="100" show_faces="false"></fb:like></div>',
-	            socialUpdate: true
+	            menuBarContent: menuBar,
+	            onUpdate: update
 		    });
+		    if(PhotoWall.options.showBoxSocial) 
+		        PhotoWall._init_socials();
 	},
 	/*
 	    Initialize image zoom on mouse over.
@@ -334,7 +356,7 @@ var PhotoWall = {
 				}
 				
 				var photo  = $(th).parent().parent();
-				var item   = PhotoWall.photos[photo.attr('id')];
+				var item   = PhotoWall._photos[photo.attr('id')];
 
 				var bigIMG = $('<img/>');
 				bigIMG.attr('src',item.th[1].src);
@@ -349,7 +371,7 @@ var PhotoWall = {
 				});		
 				
 				PhotoWall._zs = [th,thn];
-				thn.appendTo(PhotoWall.el);
+				thn.appendTo(PhotoWall._el);
 				thn.css({
 					"position":"absolute",
 					"left":$(th).offset().left-PhotoWall.options.padding*0.5+"px",
@@ -433,7 +455,7 @@ var ShowBox = {
     options: {
         closeCallback: function(){},
         menuBarContent:'',
-        socialUpdate: true
+        onUpdate: null
     },
 
     init: function(el_or_data,op) {
@@ -445,13 +467,18 @@ var ShowBox = {
     },
     _init: function(el) {
         ShowBox._images.push([]);
+        var menuBarContent = ShowBox.options.menuBarContent;
+        if(ShowBox.options.menuBarContent) {
+            menuBarContent = 
+                '<div class="showbox-menubar unselect" unselectable="on" style="display:none !important;">'
+                +         ShowBox.options.menuBarContent
+                +'</div>';
+        }
         if(!ShowBox._inited) {
             $(
                 '<div id="showbox" style="display:none;">'
                 +'    <div id="showbox-exit"></div>'
-                +'    <div class="showbox-menubar unselect" unselectable="on" style="display:none !important;">'
-                +         ShowBox.options.menuBarContent
-                +'    </div>'
+                +     menuBarContent
                 +'    <div class="showbox-image unselect" unselectable="on">'
                 +'    </div>'
                 +'    <div id="showbox-loader"></div>'
@@ -584,23 +611,9 @@ var ShowBox = {
             ShowBox._changeImage(ind);
         });
     },
-    _updateSocials: function() {
-        if(ShowBox.options.socialUpdate) {
-            if(typeof(FB) !== 'undefined')
-                 FB.XFBML.parse(document.getElementById('fblike'));
-            if(typeof(gapi) !== 'undefined') {
-                gapi.plusone.render(document.getElementById('gplus'),{
-                    'href':location.href,
-                    'annotation':'bubble',
-                    'width': 90,
-                    'align': 'left',
-                    'size': 'medium'
-                });
-            }
-            if(typeof(twttr) !== 'undefined') {
-                $('#showbox .twitter-share-button').attr('data-url',location.href);
-                twttr.widgets.load();
-            }
+    _onChangePhoto: function() {
+        if(typeof(ShowBox.options.onUpdate) == 'function') {
+            ShowBox.options.onUpdate();
         }
     },
     _changeImage: function(ind) {
@@ -612,7 +625,7 @@ var ShowBox = {
         ShowBox._setCounter(ind+1,total);
         window.location.hash = 'p='+(ind+1)+'&gal='+(ShowBox._current+1);
         $('#showbox .showbox-menubar').append(ShowBox.options.menuBarContent);
-        ShowBox._updateSocials();
+        ShowBox._onChangePhoto();
         ShowBox._index = ind;
         $('#showbox .showbox-img').remove();
         ShowBox._th.removeClass('showbox-th-active');
@@ -628,7 +641,7 @@ var ShowBox = {
             $(this).attr({
                 width:iW,
                 height:iH
-            }).fadeIn(200);
+            }).fadeIn(400);
             $('#showbox-loader').hide();   
             $('#showbox .showbox-menubar').show();
             ShowBox.RESIZE();
@@ -689,7 +702,11 @@ var ShowBox = {
         var showbox = $('#showbox');
         var img = $('#showbox .showbox-image img');
         var cW  = showbox.width();
-        var cH  = showbox.height()-141;
+        var cH  = showbox.height()-146;
+        if(!ShowBox.options.menuBarContent) {
+            cH  = showbox.height()-111;
+        }
+        console.log(showbox.height()+' '+cH);
         var iH  = parseInt(img.attr('height'));
         var iW  = parseInt(img.attr('width'))
         var factor = 1;
@@ -704,7 +721,7 @@ var ShowBox = {
             imH = iH;
         }
         var imL  = Math.round((cW - imW)/2);
-        var imT  = Math.round((cH - imH)/2);
+        var imT  = Math.round((cH - imH)/2)+5;
         $('#showbox .showbox-image').css({
             'width': imW+'px',
             'height': imH+'px',
@@ -715,9 +732,9 @@ var ShowBox = {
             'height': imH+'px',
         });
         var thL = Math.round(cW/2) - (ShowBox._index * 64 + 30);
-        $('#showbox .showbox-th-container').css({
-            left:  thL+'px',
-        });
+        $('#showbox .showbox-th-container').animate({
+            left:  thL,
+        },{duration:300,queue:false});
     },
     
 }

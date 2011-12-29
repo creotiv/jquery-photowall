@@ -34,14 +34,16 @@ Initialize plugin on page load and load data:
     <script type="text/javascript">
     $(document).ready(function(){
         PhotoWall.init({
-            el:             '#gallery'
-            ,zoom:          true
-            ,zoomAction:    'mouseenter'
-            ,zoomTimeout:   500
-            ,zoomDuration:  100
-            ,showBox:       true
-            ,padding:       10
-            ,lineMaxHeight: 150
+            el:             '#gallery'               // Gallery element
+            ,zoom:          true                     // Use zoom
+            ,zoomAction:    'mouseenter'             // Zoom on action
+            ,zoomTimeout:   500                      // Timeout before zoom
+            ,zoomDuration:  100                      // Zoom duration time
+            ,showBox:       true                     // Enavle fullscreen mode
+            ,showBoxSocial: true                     // Show social buttons
+            ,padding:       10                       // padding between images in gallery
+            ,lineMaxHeight: 150                      // Max set height of pictures line
+                                                     // (may be little bigger due to resize to fit line)
         });
         
         /*

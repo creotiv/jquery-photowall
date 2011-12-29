@@ -57,11 +57,8 @@ div.pw-photo img {
     width: 100%;
     font-family: Arial,Tahoma,Serif;
     color: #919191;
-    margin-top:5px;
     height: 35px;
-    left: 50%;
     position: relative;
-    margin-left: -108px;
 }
 #showbox .showbox-preview {
     border-top:1px solid #181818;
