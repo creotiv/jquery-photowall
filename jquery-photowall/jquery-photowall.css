@@ -9,6 +9,21 @@ div.pw-photo img {
 	outline: none;
 	zoom: 1;
 }
+.pw-photo-hover {
+	box-shadow: 		1px 1px 5px #333;			
+	-webkit-box-shadow:	1px 1px 5px #333;
+	-moz-box-shadow:	0 0 10px #333;
+}
+img.pw-photo-zoomed {
+	position: absolute;
+	z-index: 100;
+	background: white;
+	box-shadow: 		1px 1px 5px #333;			
+	-webkit-box-shadow:	1px 1px 5px #333;
+	-moz-box-shadow:	0 0 10px #333;
+}
+
+
 #showbox {
     position:fixed;
     width:100%;
