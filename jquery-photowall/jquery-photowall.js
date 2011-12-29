@@ -45,7 +45,7 @@ function getScrollBarWidth () {
 };
  
 function $_GET(){
-  var s = location.hash;
+  var s = location.hash.substr(2);
   a = s.match(/[^&#=]*=[^&#=]*/g);
   r = {};
   if(a) {
@@ -590,7 +590,7 @@ var ShowBox = {
         ind = parseInt(ind);
         var total = ShowBox._images[ShowBox._current].length;
         ShowBox._setCounter(ind+1,total);
-        window.location.hash = 'p='+(ind+1)+'&gal='+(ShowBox._current+1);
+        window.location.hash = '!p='+(ind+1)+'&gal='+(ShowBox._current+1);
         $('#showbox .showbox-menubar').append(ShowBox.options.menuBarContent);
         ShowBox._onChangePhoto();
         ShowBox._index = ind;
@@ -618,7 +618,7 @@ var ShowBox = {
         $('#showbox .showbox-th-counter').html(num+' of '+total);
     },
     _clearHash: function() {
-        window.location.hash = '_';
+        window.location.hash = '!';
     },
 	opened: function() {
 		return ShowBox._opened;
