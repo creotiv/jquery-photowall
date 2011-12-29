@@ -18,15 +18,16 @@ html,body {
 <script type="text/javascript">
 $(document).ready(function(){
     PhotoWall.init({
-        el:             '#gallery'
-        ,zoom:          true
-        ,zoomAction:    'mouseenter'
-        ,zoomTimeout:   500
-        ,zoomDuration:  100
-        ,showBox:       true
-        ,padding:       10
-        ,lineMaxHeight: 150
-        ,showBoxMenuBar:       '<div class="clearfix" style="margin:0 auto;width:250px;"><div style="float:left;margin-top:3px;width:80px;"><g:plusone></g:plusone></div><div style="float:left;margin-top:5px;width:90px;"><a href="https://twitter.com/share" class="twitter-share-button" data-url="http://creotiv.in.ua/imdb/" data-via="creotiv" data-lang="en" data-related="creotiv" data-hashtags="WhatToWatch">Tweet</a></div><div class="fb-like" style="float:left;margin-top:5px;width:80px;" data-href="http://creotiv.in.ua/imdb/" data-send="false" data-layout="button_count" data-width="100" data-show-faces="false" data-font="arial"></div></div>'
+        el:             '#gallery'               // Gallery element
+        ,zoom:          true                     // Use zoom
+        ,zoomAction:    'mouseenter'             // Zoom on action
+        ,zoomTimeout:   500                      // Timeout before zoom
+        ,zoomDuration:  100                      // Zoom duration time
+        ,showBox:       true                     // Enavle fullscreen mode
+        ,showBoxSocial: true                     // Show social buttons
+        ,padding:       10                       // padding between images in gallery
+        ,lineMaxHeight: 150                      // Max set height of pictures line
+                                                 // (may be little bigger due to resize to fit line)
     });
 	// Max image width form Picasa
 	// 94, 110, 128, 200, 220, 288, 320, 400, 512, 576, 640, 720, 800, 912, 
