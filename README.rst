@@ -4,13 +4,15 @@
 
 Demo
 ====
-http://creotiv.github.com/jquery-photowall/example.html
-http://creotiv.in.ua/imdb/
+- http://creotiv.github.com/jquery-photowall/example.html
+- http://creotiv.in.ua/imdb/
 
 How to use
 ==========
 
 Add three lines to the HEAD:
+
+::
 
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script> 
     <script type="text/javascript" src="jquery-photowall.js"></script> 
@@ -18,12 +20,16 @@ Add three lines to the HEAD:
     
 Add this to page code:
 
+::
+
     <div id="gallery"> 
 	    <div class="body"> 
 	    </div> 
     </div>     
 
 Initialize plugin on page load and load data:
+
+::
 
     <script type="text/javascript">
     $(document).ready(function(){
