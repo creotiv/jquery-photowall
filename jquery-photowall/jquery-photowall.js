@@ -60,8 +60,19 @@ function $_GET(){
     TODO: Add screen size check on zoom.
 */
 var PhotoWall = {
+	version: 0.1.3,
+	
 	_photos: {},
 	_el: null,
+	_next_line_factor: 0.95,
+	_remove_image_factor: 1.15,
+	_c_width: 0,
+	_c_height: 0,
+	_zoom_trigger: null,
+	_zs: null,
+	_zoom_timeout: null,
+	_last_line: [],
+	_must_resize: false,
 	options: {
         lineMaxHeight:150
         ,padding:10
@@ -72,16 +83,6 @@ var PhotoWall = {
         ,showBoxThumbSize: 60
         ,showBoxSocial: true
     },
-
-	_next_line_factor: 0.95,
-	_remove_image_factor: 1.15,
-	_c_width: 0,
-	_c_height: 0,
-	_zoom_trigger: null,
-	_zs: null,
-	_zoom_timeout: null,
-	_last_line: [],
-	_must_resize: false,
 	
 	init: function(op) {	
 	    PhotoWall.options = $.extend(PhotoWall.options,op);
@@ -445,6 +446,8 @@ var PhotoWall = {
 }
 
 var ShowBox = {
+    version: 0.1.3,
+
     _opened: false,
     _preview_locked: false,
     _images: [],
