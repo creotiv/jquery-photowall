@@ -60,7 +60,7 @@ function $_GET(){
     TODO: Add screen size check on zoom.
 */
 var PhotoWall = {
-	version: "0.1.4a",
+	version: "0.1.4b",
 	
 	_photos: {},
 	_el: null,
@@ -185,10 +185,10 @@ var PhotoWall = {
 		var type = 'display:inline-block;';
 		if($.browser.msie) 
 			type = 'float:left;';
-			
+
 		var showLine = function(line,total_width,last) {
 		    var ln = $("<div class='line' style='float:left'></div>")
-                     .appendTo(PhotoWall._el); 
+                     .appendTo(PhotoWall._el);
 			var hCoef = PhotoWall._c_width / total_width;
 			if(last)
 				var hCoef = 1;
@@ -224,7 +224,6 @@ var PhotoWall = {
 			}
 			return ln;
 		};
-		var first = true;
 		for(var i in imgArray) {	
 			var e = imgArray[i];
 			line.push(e);
@@ -233,10 +232,6 @@ var PhotoWall = {
 			if(totalWidth >= PhotoWall._c_width*PhotoWall._next_line_factor 
 			&& totalWidth <= PhotoWall._c_width*PhotoWall._remove_image_factor) 
 			{
-			    if(first && PhotoWall._last_line.length) { 
-		            PhotoWall._last_line[2].remove();
-			        first = false;
-		        }
 				var ln = showLine(line,totalWidth);
                 PhotoWall._last_line = [line,totalWidth,ln];
 				line = [];
@@ -245,22 +240,14 @@ var PhotoWall = {
 			else if(totalWidth >= PhotoWall._c_width*PhotoWall._next_line_factor 
 			&& totalWidth > PhotoWall._c_width*PhotoWall._remove_image_factor) 
 			{
-			    if(first && PhotoWall._last_line.length) { 
-		            PhotoWall._last_line[2].remove();
-			        first = false;
-		        }
-				line.pop();
+			    line.pop();
 				showLine(line,totalWidth-e.th[0].width-PhotoWall.options.padding);
 				line = [e];
 				totalWidth = e.th[0].width+PhotoWall.options.padding;
 			}	
 		}
 		if(line) {
-		    if(first && PhotoWall._last_line.length) { 
-	            PhotoWall._last_line[2].remove();
-		        first = false;
-	        }
-			var ln = showLine(line,totalWidth,1);
+		    var ln = showLine(line,totalWidth,1);
 		    PhotoWall._last_line = [line,totalWidth,ln];
 		}
 		PhotoWall.initGUI();
