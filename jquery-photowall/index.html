@@ -3,11 +3,14 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>jQuery Photo Wall</title>
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script> 
-<script type="text/javascript" src="jquery-photowall.min.js"></script> 
+<script type="text/javascript" src="jquery-photowall.js"></script> 
 <link rel="stylesheet" type="text/css" href="jquery-photowall.css">
 <style type="text/css"> 
 html,body {
 	background:#fff;
+}
+#gallery {
+
 }
 * {
    padding:0;
@@ -19,23 +22,24 @@ html,body {
 <script type="text/javascript">
 $(document).ready(function(){
     PhotoWall.init({
-        el:             '#gallery'               // Gallery element
-        ,zoom:          true                     // Use zoom
-        ,zoomAction:    'mouseenter'             // Zoom on action
-        ,zoomTimeout:   500                      // Timeout before zoom
-        ,zoomDuration:  100                      // Zoom duration time
-        ,showBox:       true                     // Enavle fullscreen mode
-        ,showBoxSocial: true                     // Show social buttons
-        ,padding:       10                       // padding between images in gallery
-        ,lineMaxHeight: 150                      // Max set height of pictures line
-                                                 // (may be little bigger due to resize to fit line)
+        el:                 '#gallery'               // Gallery element
+        ,zoom:              true                     // Use zoom
+        ,zoomAction:        'mouseenter'             // Zoom on action
+        ,zoomTimeout:       500                      // Timeout before zoom
+        ,zoomDuration:      100                      // Zoom duration time
+        ,zoomImagePadding:  2
+        ,showBox:           true                     // Enavle fullscreen mode
+        ,showBoxSocial:     true                     // Show social buttons
+        ,padding:           3                        // padding between images in gallery
+        ,lineMaxHeight:     200                      // Max set height of pictures line
+        ,isFirstBig:        false
     });
 	// Max image width form Picasa
 	// 94, 110, 128, 200, 220, 288, 320, 400, 512, 576, 640, 720, 800, 912, 
 	// 1024, 1152, 1280, 1440, 1600
      
 	$.ajax({
-		url: 'https://picasaweb.google.com/data/feed/api/user/118283508237214694671/albumid/5284120184954723249'
+		url: 'https://picasaweb.google.com/data/feed/api/user/103406122733718121972/albumid/5688319941680698849'//'https://picasaweb.google.com/data/feed/api/user/118283508237214694671/albumid/5284120184954723249'
 			 +'/?alt=json&fields=entry(gphoto:id,title,media:group(media:thumbnail,media:'
 			 +'content))&imgmax=720',
 		dataType: 'jsonp',
@@ -50,8 +54,8 @@ $(document).ready(function(){
 		        var t1w   = e.media$thumbnail[2].width;
 		        var t1src = e.media$thumbnail[2].url
 		        
-		        var t2w   = Math.round(t1w * 2);
-		        var t2h   = Math.round(t1h * 2);
+		        var t2w   = Math.round(t1w * 1.5);
+		        var t2h   = Math.round(t1h * 1.5);
 
 		        var t2src = e.media$content[0].url+'/../../w'+t2w+'-h'+t2h+'/';
 	            

@@ -17,7 +17,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
+/*
 function getScrollBarWidth () {
 	var inner = document.createElement('p');
 	inner.style.width = "100%";
@@ -42,7 +42,7 @@ function getScrollBarWidth () {
 	document.body.removeChild (outer);
  
 	return (w1 - w2);
-};
+};*/
  
 function $_GET(){
   var s = location.hash.substr(2);
@@ -60,12 +60,10 @@ function $_GET(){
     TODO: Add screen size check on zoom.
 */
 var PhotoWall = {
-	version: "0.1.4b",
+	version: "0.1.4",
 	
 	_photos: {},
 	_el: null,
-	_next_line_factor: 0.95,
-	_remove_image_factor: 1.15,
 	_c_width: 0,
 	_c_height: 0,
 	_zoom_trigger: null,
@@ -77,11 +75,13 @@ var PhotoWall = {
 	_block_resize: false,
 	options: {
         lineMaxHeight:150
-		,isFirstBig: false  //Not implemented
+		,isFirstBig: true  
+        ,firstBigWidthPercent: 0.4
         ,padding:10
         ,zoomAction:'mouseenter'
         ,zoomTimeout:500
         ,zoomDuration:300
+        ,zoomImagePadding:5
         ,showBoxPadding: 2
         ,showBoxThumbSize: 60
         ,showBoxSocial: true
@@ -91,7 +91,7 @@ var PhotoWall = {
 	    PhotoWall.options = $.extend(PhotoWall.options,op);
 
 		PhotoWall._el = op.el+' .body';
-		PhotoWall._c_width = $(PhotoWall._el).width()-getScrollBarWidth();
+		PhotoWall._c_width = $(PhotoWall._el).width();
 		PhotoWall._c_height = $(PhotoWall._el).height();	
 		$(PhotoWall._el).html('').addClass('clearfix');
 		
@@ -127,43 +127,19 @@ var PhotoWall = {
 	},
 	// Here we resize all photos to max line height and replace main data array.
 	load: function(data) {
-	    var items = [];
 	    for(var i in data) {
 	        var el = data[i];
 	        var fact  = PhotoWall.options.lineMaxHeight/el.th[0].height;
 	        var fact2 = el.th[1].height/el.th[0].height;
 	        
-			data[i]['th'][0].width  = Math.floor(data[i]['th'][0].width * fact);
+			data[i]['th'][0].width  = Math.round(data[i]['th'][0].width * fact);
 			data[i]['th'][0].height = PhotoWall.options.lineMaxHeight;
-		    data[i]['th'][1].width  = Math.floor(data[i]['th'][0].width * fact2);
-		    data[i]['th'][1].height = Math.floor(data[i]['th'][0].height * fact2);
-	        items.push(data[i]);
+		    data[i]['th'][1].width  = Math.round(data[i]['th'][0].width * fact2);
+		    data[i]['th'][1].height = Math.round(data[i]['th'][0].height * fact2);
 	    }
         PhotoWall._photos = data;
 		PhotoWall.show();
 	},
-	/*
-        Not working for now.
-	    Here we resize all photos to max line height and update main data array.
-	*/
-	/*
-	update: function(data) {
-	    var items = [];
-	    for(var i in data) {
-	        var el = data[i];
-	        var fact  = PhotoWall.options.lineMaxHeight/el.th[0].height;
-	        var fact2 = el.th[1].height/el.th[0].height;
-	        
-			data[i]['th'][0].width  = Math.floor(data[i]['th'][0].width * fact);
-			data[i]['th'][0].height = PhotoWall.options.lineMaxHeight;
-		    data[i]['th'][1].width  = Math.floor(data[i]['th'][0].width * fact2);
-		    data[i]['th'][1].height = Math.floor(data[i]['th'][0].height * fact2);
-	        items.push(data[i]);
-	    }
-        PhotoWall._photos = $.extend(PhotoWall._photos,data);
-		PhotoWall.show(data);
-	},
-	*/
 	/* This method render images by lines to the container.
 	   If 'data' is set then images from 'data' will be appended to the container,
 	   else images from container will be replace by the images from the main array.
@@ -173,93 +149,122 @@ var PhotoWall = {
         var line = [];
 		var totalWidth = 0;	
 		if(!data) {
+		    // when we load images
 		    if(!PhotoWall._photos) return;
 		    $(PhotoWall._el).html('');
 		    $(window).scrollTop(0);
 		    imgArray = PhotoWall._photos;
 		} else {
+		    // when we need to update list of images. 
 	        imgArray   = data;
             line       = PhotoWall._last_line[0];
 		    totalWidth = PhotoWall._last_line[1];
 		}
-		var type = 'display:inline-block;';
-		if($.browser.msie) 
-			type = 'float:left;';
-
-		var showLine = function(line,total_width,last) {
+        
+        var addImage = function(id,padding,w,h,big,th) {
+            var t = $('<div id="'+id+'" class="pw-photo clearfix" style="'
+                +'margin:'+padding+'px;'
+                +'width:'+w+'px;height:'+h+'px;float:left;'
+                +'"><a class="pw-link" href="'+big
+                +'"><img class="pw-zoom" src="'+th+'" '
+                +'width="'+w+'" height="'+h+'" /></a></div>'
+	        );
+			        
+			if($.browser.msie) {
+				t.find('img').hide();
+				if(PhotoWall._inited)
+				    t.find('img').load(function(){$(this).fadeIn(300);});
+			} else {
+				t.find('img').css('opacity',0);
+				if(PhotoWall._inited)
+				    t.find('img').load(function(){
+				        $(this).delay(Math.random()*(1000 - 300)+300)
+				               .animate({"opacity":1},{duration:1000})
+	                });
+			}
+			return t;
+        }
+        /*
+            Create line of images and add it to container body.
+        */
+		var showLine = function(line,total_width,last,first) {
 		    var ln = $("<div class='line' style='float:left'></div>")
                      .appendTo(PhotoWall._el);
-			var hCoef = PhotoWall._c_width / total_width;
+			var num_photos = line.length;		
+            var space = (first)?(PhotoWall._c_width*PhotoWall.options.firstBigWidthPercent+PhotoWall.options.padding*2):0;			
+			var hCoef = (PhotoWall._c_width-space-num_photos*PhotoWall.options.padding*2) / total_width;
 			if(last)
 				var hCoef = 1;
-			var l = 0;
-			var max = line.length;			
-			
+            var l = 0;
+            console.log(first);
 			for(var k in line) {	
 				var w = Math.round(line[k].th[0].width*hCoef);
 				var h = Math.round(line[k].th[0].height*hCoef);
-				l += w+PhotoWall.options.padding;
-				if(max-1 == k && !last) {
-					w += PhotoWall._c_width - l;
-					l += PhotoWall._c_width - l;
-				}
-				var t = $('<div id="'+line[k].id+'" class="pw-photo clearfix" style="'
-				          +'position:relative;margin:'
-				          +Math.round(PhotoWall.options.padding/2)+'px;'
-				          +'top:0px;left:0px;width:'+w+'px;height:'+h+'px;'+type
-				          +'"><a class="pw-link" href="'+line[k].img
-				          +'"><img class="pw-zoom" style="position:absolute;'
-				          +'top:0px;left:0px;" src="'+line[k].th[0].src+'" '
-				          +'width="'+w+'" height="'+h+'" /></a></div>'
-				        );
-				if($.browser.msie) {
-					t.find('img').hide().load(function(){$(this).fadeIn(300);});
-				} else {
-					t.find('img').css('opacity',0).load(function(){
-					    $(this).delay(Math.random()*(1000 - 300)+300)
-					           .animate({"opacity":1},{duration:1000})
-		            });
-				}
+                var t;
+                // This needed to fit images in container, because due to round 
+                // function it can be different in few pixels.
+                l += w;
+                if(!last && k == (num_photos-1)) {
+                    w += (PhotoWall._c_width-space-num_photos*PhotoWall.options.padding*2)-l;
+                }
+                
+				t = addImage(line[k].id,PhotoWall.options.padding,w,h,line[k].img,line[k].th[0].src); 
 				ln.append(t);
 			}
-			return ln;
-		};
-		for(var i in imgArray) {	
+			return true;
+		};/* End of showLine() */
+
+        var lines = 0;
+        var first = true;
+        for(var i in imgArray) {	
+		    var space = 0;
+		    var first_space = false;
+		
+		    if(PhotoWall.options.isFirstBig && first) {
+                var fact = PhotoWall._c_width*PhotoWall.options.firstBigWidthPercent/imgArray[i].th[1].width;
+                var w = imgArray[i].th[1].width * fact;
+                var h = imgArray[i].th[1].height * fact;
+                addImage(imgArray[i].id,PhotoWall.options.padding,w,w,imgArray[i].img,imgArray[i].th[1].src).appendTo(PhotoWall._el);
+                first = false;
+                continue;                
+            }
+
 			var e = imgArray[i];
-			line.push(e);
-			totalWidth += e.th[0].width+PhotoWall.options.padding;
+			if(lines < 2 && PhotoWall.options.isFirstBig) {
+                first_space = true;
+                space       = PhotoWall._c_width*PhotoWall.options.firstBigWidthPercent;  
+            }
 			
-			if(totalWidth >= PhotoWall._c_width*PhotoWall._next_line_factor 
-			&& totalWidth <= PhotoWall._c_width*PhotoWall._remove_image_factor) 
+			line.push(e);
+			totalWidth += e.th[0].width;
+
+			if(totalWidth >= (PhotoWall._c_width - space)) 
 			{
-				var ln = showLine(line,totalWidth);
+			    console.log(lines)
+			    var ln = showLine(line,totalWidth,0,first_space);
                 PhotoWall._last_line = [line,totalWidth,ln];
 				line = [];
-				totalWidth = 0;
-			} 
-			else if(totalWidth >= PhotoWall._c_width*PhotoWall._next_line_factor 
-			&& totalWidth > PhotoWall._c_width*PhotoWall._remove_image_factor) 
-			{
-			    line.pop();
-				showLine(line,totalWidth-e.th[0].width-PhotoWall.options.padding);
-				line = [e];
-				totalWidth = e.th[0].width+PhotoWall.options.padding;
-			}	
+                totalWidth = 0;
+                lines++;
+			}
 		}
 		if(line) {
-		    var ln = showLine(line,totalWidth,1);
+			if(lines < 2 && PhotoWall.options.isFirstBig)
+                first_space = true;
+		    var ln = showLine(line,totalWidth,1,first_space);
 		    PhotoWall._last_line = [line,totalWidth,ln];
 		}
-		PhotoWall.initGUI();
+		if(!PhotoWall._inited) {
+		    PhotoWall._inited = true;
+            // After first load need to resize, because scrollbars can be added.
+		    PhotoWall._resize();
+            PhotoWall.initGUI();
+		}			
 	},
 	/*
 	    Initialize GUI.
 	*/
 	initGUI: function() {
-		if(PhotoWall._inited)
-			return;
-		PhotoWall._inited = true;
-		
 		if(PhotoWall.options.zoom)
 		    PhotoWall.initZoom();
 		if(PhotoWall.options.showBox)
@@ -312,6 +317,7 @@ var PhotoWall = {
 			if(!parseInt(img.css('opacity'))) return;
 							
 			img.stop().addClass('pw-photo-hover');
+			// Make images to zoom only after some time to prevent zoom on mouse move.
 			PhotoWall._zoom_timeout = setTimeout(function(){
 				img.removeClass('pw-photo-hover');				
 				img.addClass('pw-photo-zoomed');
@@ -320,6 +326,7 @@ var PhotoWall = {
 					var container  = img.parent().parent();
 					var item   = PhotoWall._photos[container.attr('id')];
 					
+					// Preload zoomed image and replace old only when it loaded.
 					var bigIMG = $('<img/>');
 					bigIMG.attr('src',item.th[1].src);
 					bigIMG.load(function(){ 
@@ -331,29 +338,41 @@ var PhotoWall = {
 					var h  = item.th[1].height;
 					var dw = item.th[1].width - item.th[0].width;
 					var dh = item.th[1].height - item.th[0].height;
-					var l  = -(dw) * 0.5-PhotoWall.options.padding*0.5;
-					var t  = -(dh) * 0.5-PhotoWall.options.padding*0.5;
+					var l  = -(dw) * 0.5-PhotoWall.options.zoomImagePadding;
+					var t  = -(dh) * 0.5-PhotoWall.options.zoomImagePadding;
 					var o  = container.offset(); 
 					var wn = $(window);
+					var winFact = 1;
 					
+					// Prevent image to expand out of visible part of window 
 					if(o.left + l + w > (wn.width()+wn.scrollLeft()))
-						l -= (o.left + l + w) - (wn.width()+wn.scrollLeft())+PhotoWall.options.padding*2; 
+						l -= (o.left + l + w) - (wn.width()+wn.scrollLeft())+PhotoWall.options.zoomImagePadding*2; 
 					
 					if(o.left + l < wn.scrollLeft())
 						l -= (o.left + l)-wn.scrollLeft();
 					
 					if(o.top + t + h > (wn.height()+wn.scrollTop()))
-						t -= (o.top + t + h) - (wn.height()+wn.scrollTop())+PhotoWall.options.padding*2; 
+						t -= (o.top + t + h) - (wn.height()+wn.scrollTop())+PhotoWall.options.zoomImagePadding*2; 
 					
 					if(o.top + t < wn.scrollTop())
 						t -= (o.top + t)-wn.scrollTop();
-		
+		            // END
+		            
+		            // Prevent image from being bigger then visible part of window
+		            if(w+PhotoWall.options.zoomImagePadding*2 > wn.width()) 
+		                winFact *= (wn.width()-PhotoWall.options.zoomImagePadding*2)/(w+PhotoWall.options.zoomImagePadding*2);
+		                
+		            if((h*winFact+PhotoWall.options.zoomImagePadding*2) > wn.height()) 
+		                winFact *= (wn.height()-PhotoWall.options.zoomImagePadding*2)/(h*winFact+PhotoWall.options.zoomImagePadding*2);
+		            // END
+		            
+		            // Zoomig
 					img.animate({
 						"margin-left": 	l,
 						"margin-top": 	t,
-						"width": 		w+PhotoWall.options.padding,
-						"height": 		h+PhotoWall.options.padding,
-						"padding": 		PhotoWall.options.padding*0.5
+						"width": 		Math.round(w*winFact),
+						"height": 		Math.round(h*winFact),
+						"padding": 		PhotoWall.options.zoomImagePadding
 					}, {
 						queue: 		false,
 						duration: 	PhotoWall.options.zoomDuration,
@@ -372,22 +391,15 @@ var PhotoWall = {
 			}
 			img.removeClass('pw-photo-hover');
 			if(img.hasClass('pw-photo-zoomed')) {
-				img.stop().animate({
-					"margin-left": 	'0px',
-					"margin-top": 	'0px',
-					"width":		PhotoWall._zs[0] + 'px',
-					"height": 		PhotoWall._zs[1] + 'px'
-				}, {
-					duration:50,
-					queue:false,
-					complete:function() {
-						PhotoWall._zs = null;
-						img.removeClass('pw-photo-zoomed').css({
-							'margin':  '',
-							'padding': ''
-						});
-					}
+				img.stop().css({
+					"margin":  '',
+					"padding": '',
+			        "width":		PhotoWall._zs[0] + 'px',
+			        "height": 		PhotoWall._zs[1] + 'px'
+		
 				});
+				PhotoWall._zs = null;
+				img.removeClass('pw-photo-zoomed');
 			}
 		});
 	}
