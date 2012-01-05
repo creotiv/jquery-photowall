@@ -1,3 +1,10 @@
+div.pw-photo {
+    position: relative;
+}
+div.pw-crop {
+    position: relative;
+    overflow: hidden;
+}
 div.pw-photo a {
 	text-decoration: none;
 	outline: none;
@@ -12,7 +19,7 @@ div.pw-photo img {
 .pw-photo-hover {
 	box-shadow: 		1px 1px 5px #333;			
 	-webkit-box-shadow:	1px 1px 5px #333;
-	-moz-box-shadow:	0 0 10px #333;
+	-moz-box-shadow:	1px 1px 5px #333;
 }
 img.pw-photo-zoomed {
 	position: absolute;
@@ -20,7 +27,7 @@ img.pw-photo-zoomed {
 	background: white;
 	box-shadow: 		1px 1px 5px #333;			
 	-webkit-box-shadow:	1px 1px 5px #333;
-	-moz-box-shadow:	0 0 10px #333;
+	-moz-box-shadow:	1px 1px 5px #333;
 }
 
 
