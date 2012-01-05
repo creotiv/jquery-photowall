@@ -1,6 +1,10 @@
 div.pw-photo {
     position: relative;
 }
+div.pw-crop {
+    position: relative;
+    overflow: hidden;
+}
 div.pw-photo a {
 	text-decoration: none;
 	outline: none;
