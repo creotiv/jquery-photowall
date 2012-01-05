@@ -1,8 +1,9 @@
 /*
     jQuery PhotoWall with ShowBox
     jQuery image gallery script with fullscreen mode.
+    http://creotiv.github.com/jquery-photowall
     
-    Copyright (C) 2012  Andrey Nikishaev(creotiv@gmail.com)
+    Copyright (C) 2012  Andrey Nikishaev(creotiv@gmail.com, http://creotiv.in.ua)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
