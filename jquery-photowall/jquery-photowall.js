@@ -119,7 +119,6 @@ var PhotoWall = {
         if(PhotoWall.options.lineMaxHeightDynamic) {
 		    var fact = $(window).height()/PhotoWall.options.baseScreenHeight;
 		    PhotoWall.options.lineMaxHeight = (PhotoWall._line_max_height*fact >= 100)?(PhotoWall._line_max_height*fact):100;
-		    console.log(fact+' = '+PhotoWall.options.lineMaxHeight);
 		}  
     },
 	RESIZE: function() {
@@ -150,7 +149,6 @@ var PhotoWall = {
 	        }
 	    }
         PhotoWall._photos = data;
-        console.log(PhotoWall._photos);
 		PhotoWall.show();
 	},
 	/* This method render images by lines to the container.
@@ -247,7 +245,6 @@ var PhotoWall = {
 				
 				imgArray[i]['th'].width  = Math.round(imgArray[i]['th'].width * fact);
 				imgArray[i]['th'].height = PhotoWall.options.lineMaxHeight;
-				console.log(imgArray[i]['th'].height);
 		    }
 			if(PhotoWall.options.isFirstBig && first) {
 			    PhotoWall._first_big = imgArray[i];
@@ -391,7 +388,6 @@ var PhotoWall = {
 					var o  = container.offset(); 
 					var wn = $(window);
 					var winFact = 1;
-					console.log(t);
 					// Prevent image to expand out of visible part of window 
 					if(o.left + l + w > (wn.width()+wn.scrollLeft()))
 						l -= (o.left + l + w) - (wn.width()+wn.scrollLeft())+PhotoWall.options.zoomImageBorder*2; 
@@ -405,7 +401,6 @@ var PhotoWall = {
 					if(o.top + t < wn.scrollTop())
 						t -= (o.top + t)-wn.scrollTop();
 		            // END
-		            console.log(t);
 		            // Prevent image from being bigger then visible part of window
 		            if(w+PhotoWall.options.zoomImageBorder*2 > wn.width()) 
 		                winFact *= (wn.width()-PhotoWall.options.zoomImageBorder*2)/(w+PhotoWall.options.zoomImageBorder*2);
