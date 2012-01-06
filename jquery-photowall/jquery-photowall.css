@@ -1,5 +1,9 @@
 div.pw-photo {
-    position: relative;
+
+}
+div.pw-line {
+    float:left;
+    overflow:hidden;
 }
 div.pw-crop {
     position: relative;
