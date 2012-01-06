@@ -18,7 +18,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-/*
+
 function getScrollBarWidth () {
 	var inner = document.createElement('p');
 	inner.style.width = "100%";
@@ -43,7 +43,7 @@ function getScrollBarWidth () {
 	document.body.removeChild (outer);
  
 	return (w1 - w2);
-};*/
+};
  
 function $_GET(){
   var s = location.hash.substr(2);
@@ -96,12 +96,11 @@ var PhotoWall = {
 	    PhotoWall.options = $.extend(PhotoWall.options,op);
 
 		PhotoWall._el = op.el+' .body';
-		PhotoWall._c_width = $(PhotoWall._el).width();
+		PhotoWall._c_width = $(PhotoWall._el).width()-getScrollBarWidth();
 		PhotoWall._c_height = $(PhotoWall._el).height();	
 		PhotoWall._line_max_height = PhotoWall.options.lineMaxHeight;
 		PhotoWall._setLineMaxHeightDynamic();
 		$(PhotoWall._el).html('').addClass('clearfix');
-		
 		$(window).resize(PhotoWall.RESIZE);
 	},
 	_init_socials:   function go(){
@@ -145,7 +144,7 @@ var PhotoWall = {
 	    if(!PhotoWall.options.lineMaxHeightDynamic) {
 	        for(var i in data) {
 	            var fact  = PhotoWall.options.lineMaxHeight/data[i].th.height;
-			    data[i]['th'].width  = Math.round(data[i]['th'].width * fact);
+			    data[i]['th'].width  = Math.floor(data[i]['th'].width * fact);
 			    data[i]['th'].height = PhotoWall.options.lineMaxHeight;
 	        }
 	    }
@@ -187,18 +186,13 @@ var PhotoWall = {
                 +'"><img class="pw-zoom" src="'+th+'" '
                 +'width="'+w+'" height="'+h+'" style="'+img_pos+'" /></a></div>'
 	        );
-			        
 			if($.browser.msie) {
-				t.find('img').hide();
-				if(PhotoWall._inited)
-				    t.find('img').load(function(){$(this).fadeIn(300);});
+				t.find('img').hide().load(function(){$(this).fadeIn(300);});
 			} else {
-				t.find('img').css('opacity',0);
-				if(PhotoWall._inited)
-				    t.find('img').load(function(){
-				        $(this).delay(Math.random()*(1000 - 300)+300)
-				               .animate({"opacity":1},{duration:1000})
-	                });
+				t.find('img').css('opacity',0).load(function(){
+			        $(this).delay(Math.random()*(1000 - 300)+300)
+			               .animate({"opacity":1},{duration:1000});
+                });
 			}
 			return t;
         }
@@ -206,7 +200,7 @@ var PhotoWall = {
             Create line of images and add it to container body.
         */
 		var showLine = function(line,total_width,last,first) {
-		    var ln = $("<div class='line' style='float:left'></div>")
+		    var ln = $("<div class='pw-line' style='width:"+(total_width+num_photos*PhotoWall.options.padding*2)+"'></div>")
                      .appendTo(PhotoWall._el);
 			var num_photos = line.length;		
             var space = (first)?(PhotoWall._c_width*PhotoWall.options.firstBigWidthPercent+PhotoWall.options.padding*2):0;			
@@ -215,8 +209,8 @@ var PhotoWall = {
 				var hCoef = 1;
             var l = 0;
 			for(var k in line) {	
-				var w = Math.round(line[k].th.width*hCoef);
-				var h = Math.round(line[k].th.height*hCoef);
+				var w = Math.floor(line[k].th.width*hCoef);
+				var h = Math.floor(line[k].th.height*hCoef);
                 var t;
                 // This needed to fit images in container, because due to round 
                 // function it can be different in few pixels.
@@ -244,7 +238,7 @@ var PhotoWall = {
 		    if(PhotoWall.options.lineMaxHeightDynamic) {
    				var fact  = PhotoWall.options.lineMaxHeight/imgArray[i].th.height;
 				
-				imgArray[i]['th'].width  = Math.round(imgArray[i]['th'].width * fact);
+				imgArray[i]['th'].width  = Math.floor(imgArray[i]['th'].width * fact);
 				imgArray[i]['th'].height = PhotoWall.options.lineMaxHeight;
 		    }
 			if(PhotoWall.options.isFirstBig && first) {
@@ -292,17 +286,21 @@ var PhotoWall = {
 				im.img
 			).prependTo(PhotoWall._el);
         }
+        
 		if(line) {
 			if(lines < 2 && PhotoWall.options.isFirstBig)
                 first_space = true;
 		    var ln = showLine(line,totalWidth,1,first_space);
 		    PhotoWall._last_line = [line,totalWidth,ln];
 		}
+        // Hack: Fix line width if scroll bar not present.
+	    if(PhotoWall._c_width < $(PhotoWall._el).width()) {
+            PhotoWall.RESIZE();
+	    }
+		    
 		if(!PhotoWall._inited) {
 		    PhotoWall._inited = true;
-            // After first load need to resize, because scrollbars can be added.
-		    PhotoWall.RESIZE();
-            PhotoWall.initGUI();
+		    PhotoWall.initGUI();
 		}			
 	},
 	/*
