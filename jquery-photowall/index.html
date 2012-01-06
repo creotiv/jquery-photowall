@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>jQuery Photo Wall</title>
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script> 
-<script type="text/javascript" src="jquery-photowall.min.js"></script> 
+<script type="text/javascript" src="jquery-photowall.js"></script> 
 <link rel="stylesheet" type="text/css" href="jquery-photowall.css">
 <style type="text/css"> 
 html,body {
@@ -30,9 +30,9 @@ $(document).ready(function(){
         ,zoomImageBorder:   5                         // Zoomed image border size 
         ,showBox:           true                     // Enavle fullscreen mode
         ,showBoxSocial:     true                     // Show social buttons
-        ,padding:           2                        // padding between images in gallery
-        ,lineMaxHeight:     200                      // Max set height of pictures line
-        ,lineMaxHeightDynamic: false                  // Dynamic lineMaxHeight. If set to True,
+        ,padding:           5                        // padding between images in gallery
+        ,lineMaxHeight:     150                      // Max set height of pictures line
+        ,lineMaxHeightDynamic: true                  // Dynamic lineMaxHeight. If set to True,
                                                      // then line height will be changing on 
                                                      // resize, coressponding to 
                                                      // baseScreenHeight param
