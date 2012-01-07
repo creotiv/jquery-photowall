@@ -338,7 +338,7 @@ var PhotoWall = {
 				}		            
 			};
 		}
-		ShowBox.init('#gallery a.pw-link',{
+		ShowBox.init(PhotoWall._el+' a.pw-link',{
 			closeCallback:function(){
 				if(PhotoWall._must_resize) {
 					PhotoWall.RESIZE();
@@ -450,7 +450,7 @@ var PhotoWall = {
 	ShowBox - Fullscreen image viewer that overlay on the current page.
 */
 var ShowBox = {
-    version: "0.1.4a",
+    version: "0.1.4",
 
     _opened: false,
     _preview_locked: false,
@@ -497,7 +497,7 @@ var ShowBox = {
             ).appendTo('body');
         }
         $('body').append(            
-            '<div id="showbox-thc'+(ShowBox._images.length-1)+'" style="overflow:hidden;position:relative;width:100%;"><div class="showbox-th-container clearfix" style="position:abolute;top:-999999px;"></div></div>'
+            '<div id="showbox-thc'+(ShowBox._images.length-1)+'" style="overflow:hidden;width:100%;position:absolute;top:-999999px;"><div class="showbox-th-container clearfix"></div></div>'
         );
         var i = 0;
         var lc  = ShowBox._images.length-1;
@@ -583,7 +583,7 @@ var ShowBox = {
     _show: function(gal) {
         var thc = $('#showbox-thc'+gal).detach();
         thc.appendTo('#showbox .showbox-preview');
-        $('#showbox-thc'+gal+' .showbox-th-container').css({position:'',top:'0px'});
+        $('#showbox-thc'+gal).css({position:'relative',top:'0px'});
         $('#showbox-loader').show();
         $('body').css('overflow','hidden');
         $('#showbox').fadeIn(200,function() {
@@ -672,7 +672,7 @@ var ShowBox = {
         ShowBox.options.closeCallback();
         $('#showbox .showbox-menubar').hide();
         $('#showbox .showbox-image img').remove();
-		$('#showbox-thc'+ShowBox._current+' .showbox-th-container').css({position:'absolute',top:'-10000px'});
+		$('#showbox-thc'+ShowBox._current).css({position:'absolute',top:'-10000px'});
         $('#showbox-thc'+ShowBox._current).detach().appendTo('body');
     },
     KEYPRESSED: function(e) {
