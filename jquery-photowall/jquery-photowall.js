@@ -450,7 +450,7 @@ var PhotoWall = {
 	ShowBox - Fullscreen image viewer that overlay on the current page.
 */
 var ShowBox = {
-    version: "0.1.4",
+    version: "0.1.5",
 
     _opened: false,
     _preview_locked: false,
@@ -459,33 +459,33 @@ var ShowBox = {
     _current: '',
     _inited: false,
     _th: null,
-    options: {
-        closeCallback: function(){},
-        menuBarContent:'',
-        onUpdate: null
-    },
+    options: [],
 
     init: function(el,op) {
-        ShowBox.options = $.extend(ShowBox.options,op);
-        
+        var a = {
+            closeCallback: function(){},
+            menuBarContent:'',
+            onUpdate: null
+        };
+        ShowBox.options.push($.extend(a,op));
         ShowBox._init(el);
         ShowBox._initEvents(el);
         ShowBox._parseGet();
     },
     _init: function(el) {
         ShowBox._images.push([]);
-        var menuBarContent = ShowBox.options.menuBarContent;
-        if(ShowBox.options.menuBarContent) {
-            menuBarContent = 
-                '<div class="showbox-menubar unselect" unselectable="on" style="display:none !important;">'
-                +         ShowBox.options.menuBarContent
-                +'</div>';
+        if(ShowBox.options[ShowBox.options.length-1].menuBarContent) {
+            $('body').append(                 
+                '<div id="showbox-menubar'+(ShowBox.options.length-1)+'" style="overflow:hidden;width:100%;position:absolute;top:-999999px;">'
+                +         ShowBox.options[ShowBox.options.length-1].menuBarContent
+                +'</div>'
+            );
         }
         if(!ShowBox._inited) {
             $(
                 '<div id="showbox" style="display:none;">'
                 +'    <div id="showbox-exit"></div>'
-                +     menuBarContent
+                +'    <div class="showbox-menubar unselect" unselectable="on" style="display:none !important;"></div>'
                 +'    <div class="showbox-image unselect" unselectable="on">'
                 +'    </div>'
                 +'    <div id="showbox-loader"></div>'
@@ -497,7 +497,7 @@ var ShowBox = {
             ).appendTo('body');
         }
         $('body').append(            
-            '<div id="showbox-thc'+(ShowBox._images.length-1)+'" style="overflow:hidden;width:100%;position:absolute;top:-999999px;"><div class="showbox-th-container clearfix"></div></div>'
+            '<div id="showbox-thc'+(ShowBox.options.length-1)+'" style="overflow:hidden;width:100%;position:absolute;top:-999999px;"><div class="showbox-th-container clearfix"></div></div>'
         );
         var i = 0;
         var lc  = ShowBox._images.length-1;
@@ -510,10 +510,11 @@ var ShowBox = {
     },
     _initEvents: function(el) {
         if(el) {
+            var num = ShowBox._images.length-1;
             $(el).live('click',function(e){
                 e.preventDefault();
 				ShowBox._opened = true;
-                var gal = ShowBox._images.length-1;
+                var gal = num;
                 ShowBox._current = gal;
                 var src = $(this);
                 for(var i in ShowBox._images[gal]) {
@@ -560,6 +561,8 @@ var ShowBox = {
 			ShowBox._opened = true;
             var gal = parseInt(get['gal'])-1;
             var p   = parseInt(get['p'])-1;
+            if((ShowBox.options.length-1) != gal)
+                return;
             ShowBox._index = p;
             ShowBox._current = gal;
             ShowBox._th = $('#showbox-thc'+gal+' .showbox-th').eq(p).addClass('showbox-th-active');
@@ -582,8 +585,12 @@ var ShowBox = {
     },
     _show: function(gal) {
         var thc = $('#showbox-thc'+gal).detach();
+        var mb = $('#showbox-menubar'+gal).detach();
         thc.appendTo('#showbox .showbox-preview');
-        $('#showbox-thc'+gal).css({position:'relative',top:'0px'});
+        mb.prependTo('#showbox .showbox-menubar');
+        thc.css({position:'relative',top:'0px'});
+        mb.css({position:'relative',top:'0px'});
+        
         $('#showbox-loader').show();
         $('body').css('overflow','hidden');
         $('#showbox').fadeIn(200,function() {
@@ -620,19 +627,19 @@ var ShowBox = {
         });
     },
     _onChangePhoto: function() {
-        if(typeof(ShowBox.options.onUpdate) == 'function') {
-            ShowBox.options.onUpdate();
+        if(typeof(ShowBox.options[ShowBox._current].onUpdate) == 'function') {
+            ShowBox.options[ShowBox._current].onUpdate();
         }
     },
     _changeImage: function(ind) {
         $('#showbox-loader').show();
         $('#showbox .showbox-menubar').hide();
-        $('#showbox .showbox-menubar div').remove();	
+        $('#showbox .showbox-menubar').html('');	
         ind = parseInt(ind);
         var total = ShowBox._images[ShowBox._current].length;
         ShowBox._setCounter(ind+1,total);
         window.location.hash = 'p='+(ind+1)+'&gal='+(ShowBox._current+1);
-        $('#showbox .showbox-menubar').append(ShowBox.options.menuBarContent);
+        $('#showbox .showbox-menubar').append('<div id="showbox-menubar'+ShowBox._current+'" style="position:relative;">'+ShowBox.options[ShowBox._current].menuBarContent+'</div>');
         ShowBox._onChangePhoto();
         ShowBox._index = ind;
         $('#showbox .showbox-img').remove();
@@ -669,11 +676,11 @@ var ShowBox = {
         ShowBox._opened = false;
         $('body').css('overflow','auto');
         $('#showbox').hide();
-        ShowBox.options.closeCallback();
+        ShowBox.options[ShowBox._current].closeCallback();
         $('#showbox .showbox-menubar').hide();
         $('#showbox .showbox-image img').remove();
-		$('#showbox-thc'+ShowBox._current).css({position:'absolute',top:'-10000px'});
-        $('#showbox-thc'+ShowBox._current).detach().appendTo('body');
+		$('#showbox-thc'+ShowBox._current).css({position:'absolute',top:'-10000px'}).detach().appendTo('body');
+		$('#showbox-menubar'+ShowBox._current).css({position:'absolute',top:'-10000px'}).detach().appendTo('body');
     },
     KEYPRESSED: function(e) {
         if(e.keyCode==27) {
@@ -714,7 +721,7 @@ var ShowBox = {
         var img = $('#showbox .showbox-image img');
         var cW  = showbox.width();
         var cH  = showbox.height()-146;
-        if(!ShowBox.options.menuBarContent)
+        if(!ShowBox.options[ShowBox._current].menuBarContent)
             cH  = showbox.height()-111;
         var iH  = parseInt(img.attr('height'));
         var iW  = parseInt(img.attr('width'))
