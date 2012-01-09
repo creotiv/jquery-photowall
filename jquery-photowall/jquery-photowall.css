@@ -42,7 +42,6 @@ img.pw-photo-zoomed {
     top:0px;
     left:0px;
     background:#000;
-    *display: none;
     z-index: 1001;
     overflow:hidden;
 }
