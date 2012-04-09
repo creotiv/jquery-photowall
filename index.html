@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:og="http://ogp.me/ns#" xmlns:fb="http://www.facebook.com/2008/fbml" itemscope itemtype="http://schema.org/Service">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<title>Photo Wall - jQuery plugin</title>   
+<meta name="description" content="Cool plugin that creates gallery like at Google Photos(Picasa)">
+<meta property="og:title" content="Photo Wall Gallery - jQuery Plugin"/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="http://creotiv.github.com/jquery-photowall"/>
+<meta property="og:image" content="http://creotiv.github.com/jquery-photowall/static/screen.png"/>
+<meta property="og:site_name" content="Photo Wall Gallery - jQuery Plugin"/>
+<meta property="fb:admins" content="100002026707702"/>
+<meta property="og:description" content="Cool plugin that creates gallery like at Google Photos(Picasa)" />
+    <!-- CSS -->
+    <link rel="stylesheet" href="static/style.css" media="screen">
+	<link rel="stylesheet" type="text/css" href="jquery-photowall/jquery-photowall.css">
+    
+    <!-- jQuery Library-->
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script> 
+	<script type="text/javascript" src="jquery-photowall/jquery-photowall.js"></script> 
+
+	<script type="text/javascript">
+	$(document).ready(function(){
+		PhotoWall.init({
+			el:                 '#example'               // Gallery element
+			,zoom:              true                     // Use zoom
+			,zoomAction:        'mouseenter'             // Zoom on action
+			,zoomTimeout:       500                      // Timeout before zoom
+			,zoomDuration:      100                      // Zoom duration time
+			,zoomImageBorder:   5                         // Zoomed image border size 
+			,showBox:           true                     // Enavle fullscreen mode
+			,showBoxSocial:     true                     // Show social buttons
+			,padding:           5                        // padding between images in gallery
+			,lineMaxHeight:     150                      // Max set height of pictures line
+			,lineMaxHeightDynamic: false                  // Dynamic lineMaxHeight. If set to True,
+														 // then line height will be changing on 
+														 // resize, coressponding to 
+														 // baseScreenHeight param
+			,baseScreenHeight:  600                      // Base screen size from wich calculating dynamic lineMaxHeight  
+		});
+		// Max image width form Picasa
+		// 94, 110, 128, 200, 220, 288, 320, 400, 512, 576, 640, 720, 800, 912, 
+		// 1024, 1152, 1280, 1440, 1600
+		 
+		$.ajax({
+			url: 'https://picasaweb.google.com/data/feed/api/user/118283508237214694671/albumid/5685978516288199793'
+				 +'/?alt=json&fields=entry(gphoto:id,title,media:group(media:thumbnail,media:'
+				 +'content))&imgmax=720',
+			dataType: 'jsonp',
+			success: function(data){
+				var photos = {}
+				if(!data.feed.entry) return;
+				for(var i in data.feed.entry) {
+					var e     = data.feed.entry[i].media$group;
+					var id    = data.feed.entry[i].gphoto$id.$t;
+					
+					var t1h   = e.media$thumbnail[2].height;
+					var t1w   = e.media$thumbnail[2].width;
+					var t1src = e.media$thumbnail[2].url
+					
+					var t2w   = Math.round(t1w * 1.5);
+					var t2h   = Math.round(t1h * 1.5);
+
+					var t2src = e.media$content[0].url+'/../../w'+t2w+'-h'+t2h+'/';
+					
+					var bsrc  = e.media$content[0].url;
+					var bw    = e.media$content[0].width;
+					var bh    = e.media$content[0].height;
+					
+					
+					photos[id] = {id:id,img:bsrc,width:bw,height:bh,th:{src:t1src,width:t1w,height:t1h,zoom_src:t2src,zoom_factor:1.5}};
+					
+				}	
+				delete photos[id];
+				PhotoWall.load(photos);
+			}
+		});
+	});
+	</script>
+	<style type="text/css">
+	<!--
+	body { background-color: #ffffff; color: #000000; }
+	pre { font-family: "Courier New",Courier,monospace; font-size: 12px; color: #000000; }
+	span.comment { color: #008080; font-weight: normal; }
+	span.oper { color: #0000f0; font-weight: normal; }
+	span.var { color: #d56000; font-weight: normal; }
+	span.func { color: #aa00ff; font-weight: normal; }
+	span.string { color: #777777; font-weight: normal; }
+	span.num { color: #990000; font-weight: bold; }
+	span.reg { color: #8d7f07; font-weight: normal; }
+	-->
+	</style>
+</head>
+<body>
+	<div id="headerPanel">
+		<div id="header">
+			<div class="wrap">
+				
+				<a class="logo" href="http://github.com/creotiv">Creotiv at GitHub</a>
+				
+				<div class="clear"></div>
+				
+			</div>
+		</div><!-- header close -->
+	</div><!-- headerPanel close -->
+		
+	<div class="wrap">
+		<a href="http://github.com/creotiv/jquery-photowall"><img style="position: absolute; top: 60px; right: 0; border: 0;" src="https://a248.e.akamai.net/assets.github.com/img/e6bef7a091f5f3138b8cd40bc3e114258dd68ddf/687474703a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub"></a>
+		<div id="title">
+			<h1><a style="color:#383838;text-decoration:none;" href="http://github.com/creotiv/jquery-photowall"><strong>Photo Wall</strong> - jQuery plugin</a></h1>
+			<div style="margin:15px 0;" class="clearfix">
+				<div style="margin:15px 0;" class="clearfix">
+                <div style="float:left;margin-top: 5px;width:80px;"><div id="gplus" class="g-plusone" data-size="medium"></div></div>
+                <div style="float:left;margin-top:5px;width:90px;"><a href="https://twitter.com/share" class="twitter-share-button">Tweet</a></div>
+                <div style="float:left;margin-top:5px;width:80px;"><fb:like send="false" layout="button_count" width="100" show_faces="false"></fb:like></div></div>
+				<div style="float:right;width:210px;"><a href="https://github.com/creotiv/jquery-photowall/zipball/master" class="download">Download latest build</a></div>
+				<div style="float:right;width:150px;"><a href="https://github.com/creotiv/jquery-photowall" class="download">Source code</a></div>
+			</div>
+		</div>
+		
+		<div class="block2">
+			<div id="example">
+				<div class="body">
+				</div>
+			</div>
+		</div>
+		
+		<div class="block1">
+
+		
+		<h2>Requirements</h2>
+		
+			<ul class="list">
+				<li>jQuery >= 1.7.1</li>
+			</ul>
+		
+		<h2>Examples</h2>
+			
+			<ul class="list">
+				<li><a href="http://creotiv.github.com/jquery-photowall/example.html">Example</a></li>
+				<li><a href="http://creotiv.in.ua/imdb">What To Watch? - Service that helps in choosing movies</a></li>
+			</ul>
+		
+			
+			
+		<h2>Installation</h2>
+		Add three lines to the HEAD of the page:
+		
+		<pre><span class="oper">&lt;</span><span class="var">script</span> <span class="var">type</span><span class="oper">=</span>&quot;<span class="string">text/javascript</span>&quot; <span class="var">src</span><span class="oper">=</span>&quot;<span class="string">https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js</span>&quot;<span class="oper">&gt;</span><span class="oper">&lt;</span>/<span class="reg">script&gt;
+&lt;script type=&quot;text</span>/<span class="var">javascript</span>&quot;<span class="string"> src=</span>&quot;<span class="var">jquery</span><span class="oper">-</span><span class="var">photowall</span>.<span class="var">js</span>&quot;<span class="string">&gt;&lt;/script&gt;
+&lt;link rel=</span>&quot;<span class="var">stylesheet</span>&quot;<span class="string"> type=</span>&quot;<span class="var">text</span><span class="oper">/</span><span class="var">css</span>&quot;<span class="string"> href=</span>&quot;<span class="var">jquery</span><span class="oper">-</span><span class="var">photowall</span>.<span class="var">css</span>&quot;<span class="string">&gt</span>&quot;</pre>
+
+		Add this to page code:
+
+		<pre><span class="oper">&lt;</span><span class="var">div</span> <span class="var">id</span><span class="oper">=</span>&quot;<span class="string">gallery</span>&quot;<span class="oper">&gt;</span>
+        <span class="oper">&lt;</span><span class="var">div</span> <span class="var">class</span><span class="oper">=</span>&quot;<span class="string">body</span>&quot;<span class="oper">&gt;</span>
+        <span class="oper">&lt;</span>/<span class="reg">div&gt;
+&lt;</span>/<span class="var">div</span><span class="oper">&gt;</span></pre>
+		
+		Initialize plugin on page load and load data:
+		
+<pre><span class="oper">&lt;</span><span class="var">script</span> <span class="var">type</span><span class="oper">=</span>&quot;<span class="string">text/javascript</span>&quot;<span class="oper">&gt;</span>
+    $(<span class="var">document</span>).<span class="func">ready</span>(<span class="oper">function</span>(){
+        <span class="var">PhotoWall</span>.<span class="func">init</span>({
+            <span class="var">el</span><span class="oper">:</span>                 '<span class="string">#gallery</span>'               <span class="comment">// Gallery element</span>
+            ,<span class="var">zoom</span><span class="oper">:</span>              <span class="num">true</span>                     <span class="comment">// Use zoom</span>
+            ,<span class="var">zoomAction</span><span class="oper">:</span>        '<span class="string">mouseenter</span>'             <span class="comment">// Zoom on action</span>
+            ,<span class="var">zoomTimeout</span><span class="oper">:</span>       <span class="num">500</span>                      <span class="comment">// Timeout before zoom</span>
+            ,<span class="var">zoomDuration</span><span class="oper">:</span>      <span class="num">100</span>                      <span class="comment">// Zoom duration time</span>
+            ,<span class="var">zoomImageBorder</span><span class="oper">:</span>   <span class="num">5</span>                        <span class="comment">// Zoomed image border size </span>
+            ,<span class="var">showBox</span><span class="oper">:</span>           <span class="num">true</span>                     <span class="comment">// Enavle fullscreen mode</span>
+            ,<span class="var">showBoxSocial</span><span class="oper">:</span>     <span class="num">true</span>                     <span class="comment">// Show social buttons</span>
+            ,<span class="var">padding</span><span class="oper">:</span>           <span class="num">5</span>                        <span class="comment">// padding between images in gallery</span>
+            ,<span class="var">lineMaxHeight</span><span class="oper">:</span>     <span class="num">150</span>                      <span class="comment">// Max set height of pictures line</span>
+            ,<span class="var">lineMaxHeightDynamic</span><span class="oper">:</span> <span class="num">false</span>                 <span class="comment">// Dynamic lineMaxHeight. If set to True,</span>
+                                                         <span class="comment">// then line height will be changing on </span>
+                                                         <span class="comment">// resize, coressponding to </span>
+                                                         <span class="comment">// baseScreenHeight param</span>
+            ,<span class="var">baseScreenHeight</span><span class="oper">:</span>  <span class="num">600</span>                      <span class="comment">// Base screen size from wich calculating dynamic lineMaxHeight  </span>
+        });
+        <span class="comment">// Max image width form Picasa</span>
+        <span class="comment">// 94, 110, 128, 200, 220, 288, 320, 400, 512, 576, 640, 720, 800, 912, </span>
+        <span class="comment">// 1024, 1152, 1280, 1440, 1600</span>
+         
+        $.<span class="func">ajax</span>({
+            <span class="var">url</span><span class="oper">:</span> '<span class="string">https://picasaweb.google.com/data/feed/api/user/118283508237214694671/albumid/5685978516288199793</span>'
+                 <span class="oper">+</span>'<span class="string">/?alt=json&amp;fields=entry(gphoto:id,title,media:group(media:thumbnail,media:</span>'
+                 <span class="oper">+</span>'<span class="string">content))&amp;imgmax=720</span>',
+            <span class="var">dataType</span><span class="oper">:</span> '<span class="string">jsonp</span>',
+            <span class="var">success</span><span class="oper">:</span> <span class="oper">function</span>(<span class="var">data</span>){
+                <span class="oper">var</span> <span class="var">photos</span> <span class="oper">=</span> {}
+                <span class="oper">if</span>(<span class="oper">!</span><span class="var">data</span>.<span class="var">feed</span>.<span class="var">entry</span>) <span class="oper">return</span>;
+                <span class="oper">for</span>(<span class="oper">var</span> <span class="var">i</span> <span class="oper">in</span> <span class="var">data</span>.<span class="var">feed</span>.<span class="var">entry</span>) {
+                    <span class="oper">var</span> <span class="var">e</span>     <span class="oper">=</span> <span class="var">data</span>.<span class="var">feed</span>.<span class="var">entry</span>[<span class="var">i</span>].<span class="var">media</span>$<span class="var">group</span>;
+                    <span class="oper">var</span> <span class="var">id</span>    <span class="oper">=</span> <span class="var">data</span>.<span class="var">feed</span>.<span class="var">entry</span>[<span class="var">i</span>].<span class="var">gphoto</span>$<span class="var">id</span>.$<span class="var">t</span>;
+                    
+                    <span class="oper">var</span> <span class="var">t1h</span>   <span class="oper">=</span> <span class="var">e</span>.<span class="var">media</span>$<span class="var">thumbnail</span>[<span class="num">2</span>].<span class="var">height</span>;
+                    <span class="oper">var</span> <span class="var">t1w</span>   <span class="oper">=</span> <span class="var">e</span>.<span class="var">media</span>$<span class="var">thumbnail</span>[<span class="num">2</span>].<span class="var">width</span>;
+                    <span class="oper">var</span> <span class="var">t1src</span> <span class="oper">=</span> <span class="var">e</span>.<span class="var">media</span>$<span class="var">thumbnail</span>[<span class="num">2</span>].<span class="var">url</span>
+                    
+                    <span class="oper">var</span> <span class="var">t2w</span>   <span class="oper">=</span> <span class="var">Math</span>.<span class="func">round</span>(<span class="var">t1w</span> <span class="oper">*</span> <span class="num">1.5</span>);
+                    <span class="oper">var</span> <span class="var">t2h</span>   <span class="oper">=</span> <span class="var">Math</span>.<span class="func">round</span>(<span class="var">t1h</span> <span class="oper">*</span> <span class="num">1.5</span>);
+
+                    <span class="oper">var</span> <span class="var">t2src</span> <span class="oper">=</span> <span class="var">e</span>.<span class="var">media</span>$<span class="var">content</span>[<span class="num">0</span>].<span class="var">url</span><span class="oper">+</span>'<span class="string">/../../w</span>'<span class="oper">+</span><span class="var">t2w</span><span class="oper">+</span>'<span class="string">-h</span>'<span class="oper">+</span><span class="var">t2h</span><span class="oper">+</span>'<span class="string">/</span>';
+                    
+                    <span class="oper">var</span> <span class="var">bsrc</span>  <span class="oper">=</span> <span class="var">e</span>.<span class="var">media</span>$<span class="var">content</span>[<span class="num">0</span>].<span class="var">url</span>;
+                    <span class="oper">var</span> <span class="var">bw</span>    <span class="oper">=</span> <span class="var">e</span>.<span class="var">media</span>$<span class="var">content</span>[<span class="num">0</span>].<span class="var">width</span>;
+                    <span class="oper">var</span> <span class="var">bh</span>    <span class="oper">=</span> <span class="var">e</span>.<span class="var">media</span>$<span class="var">content</span>[<span class="num">0</span>].<span class="var">height</span>;
+                    
+                    
+                    <span class="var">photos</span>[<span class="var">id</span>] <span class="oper">=</span> {<span class="var">id</span><span class="oper">:</span><span class="var">id</span>,<span class="var">img</span><span class="oper">:</span><span class="var">bsrc</span>,<span class="var">width</span><span class="oper">:</span><span class="var">bw</span>,<span class="var">height</span><span class="oper">:</span><span class="var">bh</span>,
+                                  <span class="var">th</span><span class="oper">:</span>{<span class="var">src</span><span class="oper">:</span><span class="var">t1src</span>,<span class="var">width</span><span class="oper">:</span><span class="var">t1w</span>,<span class="var">height</span><span class="oper">:</span><span class="var">t1h</span>,
+                                      <span class="var">zoom_src</span><span class="oper">:</span><span class="var">t2src</span>,<span class="var">zoom_factor</span><span class="oper">:</span><span class="num">1.5</span>
+                                  }
+                    };
+                    
+                }    
+                <span class="var">PhotoWall</span>.<span class="func">load</span>(<span class="var">photos</span>);
+            }
+        });
+    });
+<span class="oper">&lt;</span>/<span class="reg">script&gt</span></pre>
+			<div class="clear"></div>
+			
+		</div><!-- main close -->
+		<div id="mainBottom"></div>
+	
+	</div><!-- wrap close -->
+			
+	<div id="footer">
+		<div class="wrap">
+			
+			<div class="oneOfThree">
+				
+				<h3>About Me</h3>
+							<p>Web-Developer of HL & HA systems, Photographer, Designer, Snowboarder.</p>				
+			</div>
+			<div class="oneOfThree">
+				
+				<h3>My other projects</h3>
+							<ul class="block">
+							    <li><a href="http://creotiv.github.com/jquery-an-showbox">ShowBox jQuery Plugin</a></li>
+								<li><a href="http://create-cv.appspot.com/">Create CV online</a></li>
+								<li><a href="http://creotiv.in.ua/imdb">What To Watch?</a></li>
+								<li><a href="http://morze-code.appspot.com">Morse Code</a></li>
+							</ul>				
+			</div>
+			<div class="oneOfThree last">
+				
+				<h3>Contacts</h3>
+					<ul class="clear">
+						<li><a href="http://creotiv.in.ua">My Blog</a></li>
+						<li><a href="mailto:creotiv@gmail.com">creotiv@gmail.com</a></li>
+					</ul>	
+			</div>
+			<div class="clear"></div>
+			
+		</div>
+	</div><!-- footer close -->
+		
+		
+	<div id="miniFooter">
+		<div class="wrap">
+			
+			<div class="left">
+				<a href="https://github.com/creotiv" class="footerLogo">Creotiv at GitHub</a>
+				Copyright © 2012</div>
+			
+			<ul class="social">
+				<li><a href="http://www.facebook.com/anikishaev"><img src="static/facebook.png" alt="Facebook"></a></li>
+				<li><a href="https://twitter.com/creotiv"><img src="static/twitter.png" alt="Twitter"></a></li>
+				<li><a href="http://ua.linkedin.com/in/creotiv"><img src="static/linkedin.png" alt="LinkedIn"></a></li>
+			</ul>
+			<span class="followUs">Follow me on</span>
+			
+			<div class="clear"></div>
+		</div>
+	</div><!-- minifooter close -->
+	
+<script type="text/javascript">
+(function(w, d, s) {
+  function go(){
+    var js, fjs = d.getElementsByTagName(s)[0], load = function(url, id) {
+    if (d.getElementById(id)) {return;}
+	  js = d.createElement(s); js.src = url; js.id = id;
+	  fjs.parentNode.insertBefore(js, fjs);
+	};
+    load('https://connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk');
+    load('https://apis.google.com/js/plusone.js', 'gplus1js');
+    load('https://platform.twitter.com/widgets.js', 'tweetjs');
+  }
+  if (w.addEventListener) { w.addEventListener("load", go, false); }
+  else if (w.attachEvent) { w.attachEvent("onload",go); }
+}(window, document, 'script'));
+</script>
+</body></html>
