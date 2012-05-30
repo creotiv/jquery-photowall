@@ -100,7 +100,7 @@ var PhotoWall = {
 	
 	init: function(op) {	
 	    PhotoWall.options = $.extend(PhotoWall.options,op);
-
+        PhotoWall.options.baseScreenHeight = $(window).height();
 		PhotoWall._el = op.el+' .body';
 		PhotoWall._c_width = $(PhotoWall._el).width()-getScrollBarWidth();
 		PhotoWall._c_height = $(PhotoWall._el).height();	
@@ -226,7 +226,7 @@ var PhotoWall = {
                 }
                 
 				t = addImage(line[k].id,PhotoWall.options.padding,w,h,line[k].img,line[k].th.src); 
-				ln.prepend(t);
+				ln.append(t);
 			}
 			return t;
 		};/* End of showLine() */
