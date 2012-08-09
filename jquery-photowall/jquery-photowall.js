@@ -658,7 +658,7 @@ var ShowBox = {
         img.attr('src',ShowBox._images[ShowBox._current][ind][0])
         .load(function(){
             var iW = $(this).prop('width');
-            var iH = $(this).propre('height');
+            var iH = $(this).prop('height');
             $(this).attr({
                 width:iW,
                 height:iH
