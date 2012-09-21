@@ -169,7 +169,7 @@ var PhotoWall = {
 		    // when we load images
 		    if(!PhotoWall._photos) return;
 		    $(PhotoWall._el).html('');
-		    $(window).scrollTop(0);
+		    //$(window).scrollTop(0);
 		    imgArray = PhotoWall._photos;
 		} else {
 		    // when we need to update list of images. 
