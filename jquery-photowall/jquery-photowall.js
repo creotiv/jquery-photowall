@@ -657,6 +657,11 @@ var ShowBox = {
                       
         img.attr('src',ShowBox._images[ShowBox._current][ind][0])
         .load(function(){
+            //bugfix for IE
+            try{
+                $(this).width();
+                $(this).height();
+            } catch(err){};
             var iW = $(this).prop('width');
             var iH = $(this).prop('height');
             $(this).attr({
