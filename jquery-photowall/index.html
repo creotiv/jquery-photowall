@@ -54,9 +54,10 @@ $(document).ready(function(){
 		        var e     = data.feed.entry[i].media$group;
 		        var id    = data.feed.entry[i].gphoto$id.$t;
 		        
-		        var t1h   = e.media$thumbnail[2].height;
-		        var t1w   = e.media$thumbnail[2].width;
-		        var t1src = e.media$thumbnail[2].url
+		        var t1h    = e.media$thumbnail[2].height;
+		        var t1w    = e.media$thumbnail[2].width;
+		        var t1src  = e.media$thumbnail[2].url;
+			var t1desc = e.media$description.$t;
 		        
 		        var t2w   = Math.round(t1w * 1.5);
 		        var t2h   = Math.round(t1h * 1.5);
@@ -68,7 +69,7 @@ $(document).ready(function(){
 	            var bh    = e.media$content[0].height;
 	            
 	            
-		        photos[id] = {id:id,img:bsrc,width:bw,height:bh,th:{src:t1src,width:t1w,height:t1h,zoom_src:t2src,zoom_factor:1.5}};
+		        photos[id] = {id:id,img:bsrc,width:bw,height:bh,th:{src:t1src,desc:t1desc,width:t1w,height:t1h,zoom_src:t2src,zoom_factor:1.5}};
 		        
 	        }	
 		    PhotoWall.load(photos);
