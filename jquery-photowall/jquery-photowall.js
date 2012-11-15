@@ -688,7 +688,7 @@ var ShowBox = {
         });
     },
     _setCounter: function(num,total) {
-        $('#showbox .showbox-th-counter').html(num+' de '+total);
+        $('#showbox .showbox-th-counter').html(num+' of '+total);
     },
     _clearHash: function() {
         window.location.hash = '_';
