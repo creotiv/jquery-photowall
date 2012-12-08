@@ -739,10 +739,19 @@ var ShowBox = {
         var iH  = parseInt(img.attr('height'));
         var iW  = parseInt(img.attr('width'))
         var factor = 1;
-        if(iH > (cH))
+        if(iH > (cH)) {
             factor = cH/iH;
-        if(iW > cW)    
-            factor *= cW/iW;
+        }
+        if(iW > cW) {   
+            if(factor != 1) {
+                factor2 = cW/(iW*factor);
+                if(factor2 < 1) {
+                    factor *= factor2;
+                }
+            } else {
+                factor = cW/iW;
+            }
+        }
         var imW  = Math.round(factor * iW);
         var imH  = Math.round(factor * iH);
         if(imH > iH || imW > iW) {
