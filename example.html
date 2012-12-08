@@ -48,7 +48,7 @@ $(document).ready(function(){
 			 +'content))&imgmax=720',
 		dataType: 'jsonp',
 		success: function(data){
-		    var photos = {}
+		    var photos = {};
 	        if(!data.feed.entry) return;
 	        for(var i in data.feed.entry) {
 		        var e     = data.feed.entry[i].media$group;
