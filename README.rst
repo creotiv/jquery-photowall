@@ -4,7 +4,7 @@
 
 Demo
 ====
-- http://creotiv.github.com/jquery-photowall/example.html
+- http://creotiv.github.io/jquery-photowall/example.html
 - http://creotiv.in.ua/imdb/
 
 How to use
