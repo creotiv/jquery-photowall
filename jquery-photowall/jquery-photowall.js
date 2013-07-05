@@ -63,6 +63,37 @@ function $_GET(){
   return r;
 } 
 
+// Hotfix for adding jQuery.browser method onto newer versions (it got deprecated)
+if ( !jQuery.browser ) {
+	jQuery.uaMatch = function( ua ) {
+		ua = ua.toLowerCase();
+		var match = /(chrome)[ \/]([\w.]+)/.exec( ua ) ||
+		    /(webkit)[ \/]([\w.]+)/.exec( ua ) ||
+		    /(opera)(?:.*version|)[ \/]([\w.]+)/.exec( ua ) ||
+		    /(msie) ([\w.]+)/.exec( ua ) ||
+		    ua.indexOf("compatible") < 0 && /(mozilla)(?:.*? rv:([\w.]+)|)/.exec( ua ) ||
+		    [];
+		return {
+		    browser: match[ 1 ] || "",
+		    version: match[ 2 ] || "0"
+		};
+	};
+	
+	matched = jQuery.uaMatch( navigator.userAgent );
+	browser = {};
+	if ( matched.browser ) {
+    	browser[ matched.browser ] = true;
+		browser.version = matched.version;
+	}
+	// Chrome is Webkit, but Webkit is also Safari.
+	if ( browser.chrome ) {
+ 	   browser.webkit = true;
+	} else if ( browser.webkit ) {
+    	browser.safari = true;
+	}
+	jQuery.browser = browser;
+}
+
 /*
     TODO: Add screen size check on zoom.
 */
@@ -360,7 +391,7 @@ var PhotoWall = {
 	    Initialize image zoom.
 	*/
 	initZoom: function() {
-		$(".pw-zoom").live(PhotoWall.options.zoomAction,function (){
+		$(".pw-zoom").on(PhotoWall.options.zoomAction,function (){
 			var img = $(this);
 			if(!parseInt(img.css('opacity'))) return;
 							
@@ -429,7 +460,7 @@ var PhotoWall = {
 				}
 			},PhotoWall.options.zoomTimeout);
 		});
-		$(".pw-zoom").live('mouseleave',function(){
+		$(".pw-zoom").on('mouseleave',function(){
 			var img = $(this);
 			var container  = img.parent().parent();
 			var item   = PhotoWall._photos[container.attr('id')];
@@ -517,7 +548,7 @@ var ShowBox = {
     _initEvents: function(el) {
         if(el) {
             var num = ShowBox._images.length-1;
-            $(el).live('click',function(e){
+            $(el).on('click',function(e){
                 e.preventDefault();
 				ShowBox._opened = true;
                 var gal = num;
