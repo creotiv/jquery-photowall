@@ -110,7 +110,6 @@ var PhotoWall = {
 	_zoom_timeout: null,
 	_last_line: [],
 	_must_resize: false,
-	_inited: false,
 	_block_resize: false,
 	_line_max_height:0,
 	
@@ -335,10 +334,7 @@ var PhotoWall = {
             PhotoWall.RESIZE();
 	    }
 		    
-		if(!PhotoWall._inited) {
-		    PhotoWall._inited = true;
-		    PhotoWall.initGUI();
-		}			
+        PhotoWall.initGUI();
 	},
 	/*
 	    Initialize GUI.
