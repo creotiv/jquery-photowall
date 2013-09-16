@@ -59,8 +59,8 @@ Example 1: Load images from Picasa
                     src:      //normal thumbnail src
                     zoom_src: //zoomed normal thumbnail src
                     zoom_factor: // factor of image zoom
-                    ,width:   //width of noraml thumbnail
-                    ,height:  //height of noraml thumbnail
+                    ,width:   //width of normal thumbnail
+                    ,height:  //height of normal thumbnail
                 }
             };
         
@@ -135,8 +135,8 @@ Example 2: load images from site:
                     src:      //normal thumbnail src
                     zoom_src: //zoomed normal thumbnail src
                     zoom_factor: // factor of image zoom
-                    ,width:   //width of noraml thumbnail
-                    ,height:  //height of noraml thumbnail
+                    ,width:   //width of normal thumbnail
+                    ,height:  //height of normal thumbnail
                 }
             };
         
