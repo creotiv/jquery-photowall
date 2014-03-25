@@ -1,5 +1,5 @@
 {
-  "name": "photowall",
+  "name": "photowall-gallery",
   "title": "Photo Wall Gallery",
   "description": "Photo wall gallery plugin (like at google)",
   "keywords": [
@@ -11,7 +11,7 @@
     "rss",
     "feed"
   ],
-  "version": "0.1.5",
+  "version": "0.1.6",
   "author": {
     "name": "Andrey Nikishaev",
     "email": "creotiv@gmail.com",

@@ -67,7 +67,7 @@ function $_GET(){
     TODO: Add screen size check on zoom.
 */
 var PhotoWall = {
-	version: "0.1.5",
+	version: "0.1.6",
 	
 	_photos: {},
 	_el: null,
