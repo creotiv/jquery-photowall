@@ -5,7 +5,7 @@
 Demo
 ====
 - http://creotiv.github.com/jquery-photowall/example.html
-- http://creotiv.in.ua/imdb/
+- http://30artworks.blogspot.com/
 
 How to use
 ==========

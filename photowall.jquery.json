@@ -1,0 +1,33 @@
+{
+  "name": "photowall",
+  "title": "Photo Wall Gallery",
+  "description": "Photo wall gallery plugin (like at google)",
+  "keywords": [
+    "photo",
+    "wall",
+    "google",
+    "gallery",
+    "picasa",
+    "rss",
+    "feed"
+  ],
+  "version": "0.1.5",
+  "author": {
+    "name": "Andrey Nikishaev",
+    "email": "creotiv@gmail.com",
+    "url": "https://www.facebook.com/anikishaev"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/creotiv/jquery-photowall/blob/master/jquery-photowall/MIT-LICENSE.txt"
+    }
+  ],
+  "bugs": "https://github.com/creotiv/jquery-photowall/issues",
+  "homepage": "http://creotiv.github.io/jquery-photowall/",
+  "docs": "https://github.com/creotiv/jquery-photowall/blob/master/README.rst",
+  "download": "https://github.com/creotiv/jquery-photowall/releases",
+  "dependencies": {
+    "jquery": ">=1.7.1"
+  }
+}
