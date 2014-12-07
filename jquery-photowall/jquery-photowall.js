@@ -237,9 +237,9 @@ var PhotoWall = {
             Create line of images and add it to container body.
         */
 		var showLine = function(line,total_width,last,first) {
-		    var ln = $("<div class='pw-line' style='width:"+(total_width+num_photos*PhotoWall.options.padding*2)+"'></div>")
-                     .appendTo(PhotoWall._el);
 			var num_photos = line.length;		
+		    var ln = $("<div class='pw-line' style='width:"+(total_width+num_photos*PhotoWall.options.padding*2)+"px'></div>")
+                     .appendTo(PhotoWall._el);
             var space = (first)?(PhotoWall._c_width*PhotoWall.options.firstBigWidthPercent+PhotoWall.options.padding*2):0;			
 			var hCoef = (PhotoWall._c_width-space-num_photos*PhotoWall.options.padding*2) / total_width;
 			if(last)
