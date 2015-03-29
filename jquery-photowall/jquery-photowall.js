@@ -740,10 +740,10 @@ var ShowBox = {
 		$('#showbox-menubar'+ShowBox._current).css({position:'absolute',top:'-10000px'}).detach().appendTo('body');
     },
     KEYPRESSED: function(e) {
-        if(e.keyCode==27) {
+        if(e.keyCode==27 || e.keyCode==13) {
             ShowBox.EXIT();
         }
-        if(e.keyCode==39) {
+        if(e.keyCode==39 || e.keyCode==32) {
             ShowBox._next();
         }
         if(e.keyCode==37) {
