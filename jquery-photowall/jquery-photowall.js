@@ -265,6 +265,9 @@ var PhotoWall = {
                     w += (PhotoWall._c_width-space-num_photos*PhotoWall.options.padding*2)-l;
                 }
                 
+				if(line[k].th.desc == undefined) {
+					line[k].th.desc = '';
+				}
 				t = addImage(line[k].id,PhotoWall.options.padding,w,h,line[k].img,line[k].th.src,null,null,line[k].th.desc);
 				ln.append(t);
 			}
