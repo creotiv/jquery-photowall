@@ -53,14 +53,20 @@ img.pw-photo-zoomed {
     user-select: none;
 }
 #showbox-exit {
-    width:16px;
+    width:140px;
     height:16px;
-    background: url(exit.gif);
+    background: url('exit.gif') no-repeat 100% 0px;
     position:absolute;
     right:10px;
     top:10px;
     z-index: 1002;
     cursor:pointer;
+	color:white;
+	font-family:verdana;
+	fontsize:12px;
+}
+#showbox-exit:hover {
+text-decoration:underline;
 }
 #showbox-loader {
     position: absolute;
@@ -77,6 +83,12 @@ img.pw-photo-zoomed {
 #showbox .showbox-image img {
     cursor:pointer;
 }
+#showbox .showbox-desc {
+color:white;
+margin-top:10px;
+font-family:Verdana;
+font-size:12px;
+}
 #showbox .showbox-menubar {
     text-align: center;
     width: 100%;
@@ -89,12 +101,19 @@ img.pw-photo-zoomed {
     border-top:1px solid #181818;
     background: #0A0A0A;
     position:fixed;
-    height: 80px;
+    height: 95px;
     width:100%;
-    bottom:-75px;
+    bottom:-90px;
     left:0px;
     padding: 5px 0 15px 0 ;
     overflow:hidden;
+}
+#showbox .showbox-preview p {
+text-align: center;
+color: #919191;
+font-family: Arial,Tahoma,Serif;
+font-size: 12px;
+margin-bottom: 5px;
 }
 #showbox .showbox-pv-lock {
     width:13px;
