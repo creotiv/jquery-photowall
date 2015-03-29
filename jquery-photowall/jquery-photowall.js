@@ -63,6 +63,15 @@ function $_GET(){
   return r;
 } 
 
+function escapeHtml(unsafe) {
+return unsafe
+.replace(/&/g, "&amp;")
+.replace(/</g, "&lt;")
+.replace(/>/g, "&gt;")
+.replace(/"/g, "&quot;")
+.replace(/'/g, "&#039;");
+}
+
 // Hotfix for adding jQuery.browser method onto newer versions (it got deprecated)
 if ( !jQuery.browser ) {
 	jQuery.uaMatch = function( ua ) {
@@ -209,7 +218,7 @@ var PhotoWall = {
 		    totalWidth = PhotoWall._last_line[1];
 		}
         
-        var addImage = function(id,padding,w,h,big,th,cw,ch) {
+        var addImage = function(id,padding,w,h,big,th,cw,ch,desc) {
             var img_pos = '';
             var crop = '';
             if(cw && ch) {
@@ -221,7 +230,7 @@ var PhotoWall = {
                 +'width:'+w+'px;height:'+h+'px;float:left;'
                 +'"><a class="pw-link" href="'+big
                 +'"><img class="pw-zoom" src="'+th+'" '
-                +'width="'+w+'" height="'+h+'" style="'+img_pos+'" /></a></div>'
+                +'width="'+w+'" height="'+h+'" style="'+img_pos+'" title="'+escapeHtml(desc)+'" /></a></div>'
 	        );
 			if($.browser.msie) {
 				t.find('img').hide().load(function(){$(this).fadeIn(300);});
@@ -256,7 +265,7 @@ var PhotoWall = {
                     w += (PhotoWall._c_width-space-num_photos*PhotoWall.options.padding*2)-l;
                 }
                 
-				t = addImage(line[k].id,PhotoWall.options.padding,w,h,line[k].img,line[k].th.src); 
+				t = addImage(line[k].id,PhotoWall.options.padding,w,h,line[k].img,line[k].th.src,null,null,line[k].th.desc);
 				ln.append(t);
 			}
 			return t;
@@ -521,9 +530,10 @@ var ShowBox = {
         if(!ShowBox._inited) {
             $(
                 '<div id="showbox" style="display:none;">'
-                +'    <div id="showbox-exit"></div>'
+                +'    <div id="showbox-exit">Back to the gallery</div>'
                 +'    <div class="showbox-menubar unselect" unselectable="on" style="display:none !important;"></div>'
                 +'    <div class="showbox-image unselect" unselectable="on">'
+                +'    <p class="showbox-desc select" unselectable="off"></p>'
                 +'    </div>'
                 +'    <div id="showbox-loader"></div>'
                 +'    <div class="showbox-preview unselect">'
@@ -534,14 +544,14 @@ var ShowBox = {
             ).appendTo('body');
         }
         $('body').append(            
-            '<div id="showbox-thc'+(ShowBox.options.length-1)+'" style="overflow:hidden;width:100%;position:absolute;top:-999999px;"><div class="showbox-th-container clearfix"></div></div>'
+            '<div id="showbox-thc'+(ShowBox.options.length-1)+'" style="overflow:hidden;width:100%;position:absolute;top:-999999px;"><div class="showbox-th-container clearfix"></div><p>Browse pictures by using the arrows of your keyboard or by clicking on the current picture.</p></div>'
         );
         var i = 0;
         var lc  = ShowBox._images.length-1;
         $(el).each(function(){
             var t   = $(this);
-            ShowBox._images[lc].push([t.attr('href'),t.find('img').attr('src')]);
-            ShowBox._addThumb(lc,ShowBox._images[lc][i][1],i);
+            ShowBox._images[lc].push([t.attr('href'),t.find('img').attr('src'),t.find('img').attr('title')]);
+            ShowBox._addThumb(lc,ShowBox._images[lc][i][1],i,ShowBox._images[lc][i][2]);
             i++;
         });
     },
@@ -634,8 +644,8 @@ var ShowBox = {
             ShowBox._changeImage(ShowBox._index);
         });
     },
-    _addThumb: function(gal,im,i) {
-    	$('<div class="showbox-th"><img src="'+im+'" /></div>')
+    _addThumb: function(gal,im,i,desc) {
+		$('<div class="showbox-th"><img src="'+im+'" title="'+escapeHtml(desc)+'" /></div>')
         .appendTo('#showbox-thc'+gal+' .showbox-th-container').find('img').load(function(){
             var w = $(this).width();
             var h = $(this).height();
@@ -680,6 +690,7 @@ var ShowBox = {
         ShowBox._onChangePhoto();
         ShowBox._index = ind;
         $('#showbox .showbox-img').remove();
+        $('#showbox .showbox-desc').text("");
         ShowBox._th.removeClass('showbox-th-active');
         ShowBox._th = $('#showbox .showbox-th').eq(ind).addClass('showbox-th-active');
         
@@ -701,6 +712,7 @@ var ShowBox = {
                 width:iW,
                 height:iH
             }).fadeIn(400);
+            $('#showbox .showbox-desc').text(ShowBox._images[ShowBox._current][ind][2]);
             $('#showbox-loader').hide();   
             $('#showbox .showbox-menubar').show();
             ShowBox.RESIZE();
@@ -723,6 +735,7 @@ var ShowBox = {
         ShowBox.options[ShowBox._current].closeCallback();
         $('#showbox .showbox-menubar').hide();
         $('#showbox .showbox-image img').remove();
+        $('#showbox .showbox-image p').text("");
 		$('#showbox-thc'+ShowBox._current).css({position:'absolute',top:'-10000px'}).detach().appendTo('body');
 		$('#showbox-menubar'+ShowBox._current).css({position:'absolute',top:'-10000px'}).detach().appendTo('body');
     },
@@ -741,7 +754,7 @@ var ShowBox = {
         $(el).animate({bottom:0},{queue: false,duration:150});
     },
     CLOSEPREVIEW: function(el){
-        $(el).animate({bottom:-75},{queue: false,duration:150});
+        $(el).animate({bottom:-90},{queue: false,duration:150});
     },
     LOCKPREVIEW: function(el){
         ShowBox._preview_locked = ShowBox._preview_locked?false:true;
