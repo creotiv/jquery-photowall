@@ -136,6 +136,7 @@ var PhotoWall = {
         ,zoomImageBorder:5
         ,showBoxPadding: 2
         ,showBoxSocial: true
+		,slideDuration:3000
     },
 	
 	init: function(op) {	
@@ -508,6 +509,8 @@ var ShowBox = {
     _current: '',
     _inited: false,
     _th: null,
+	_slideshow_on:false,
+	_slideshow_id: 0,
     options: [],
 
     init: function(el,op) {
@@ -533,17 +536,25 @@ var ShowBox = {
         if(!ShowBox._inited) {
             $(
                 '<div id="showbox" style="display:none;">'
-                +'    <div id="showbox-exit">Back to the gallery</div>'
+                +'    <div id="showbox-exit" class="hidable">Back to the gallery</div>'
                 +'    <div class="showbox-menubar unselect" unselectable="on" style="display:none !important;"></div>'
-                +'    <a id="prev-button" class="nav-button" href="javascript:ShowBox._prev();">❰</a>'
-                +'    <a id="next-button" class="nav-button" href="javascript:ShowBox._next();">❱</a>'
                 +'    <div class="showbox-image unselect" unselectable="on">'
-                +'    <p class="showbox-desc select" unselectable="off"></p>'
+                +'    <p class="showbox-desc select" unselectable="off"></span></p>'
                 +'    </div>'
                 +'    <div id="showbox-loader"></div>'
                 +'    <div class="showbox-preview unselect">'
-                +'        <div class="showbox-pv-lock"></div>'
-                +'        <div class="showbox-th-counter" unselectable="on"></div>'
+                +'        <div id="showbox-controls">'
+                +'        <span class="showbox-th-counter" unselectable="on"></span>'
+                +'        <span id="showbox-control-box"  class="hidable">'
+                +'        <span id="nav-box">'
+                +'        <a id="prev-button" class="nav-button" href="#">❰</a>'
+                +'        <a id="play-button" class="nav-button" href="#">▸</a>'
+                +'        <a id="pause-button" class="nav-button" href="#">║</a>'
+                +'        <a id="next-button" class="nav-button" href="#">❱</a>'
+                +'        </span>'
+                +'        <span class="showbox-pv-lock"></span>'
+                +'        </span>'
+                +'        </div>'
                 +'    </div>'
                 +'</div>'
             ).appendTo('body');
@@ -606,10 +617,26 @@ var ShowBox = {
                 ShowBox.RESIZE(this);
             });
             $('#showbox').mouseenter(function(){
-				$('.nav-button').animate({"opacity":1},{duration:500});
+				$('.hidable').animate({"opacity":1},{duration:500});
             });
             $('#showbox').mouseleave(function(){
-				$('.nav-button').animate({"opacity":0},{duration:500});
+				$('.hidable').animate({"opacity":0},{duration:500});
+            });
+            $('#next-button').click(function(e){
+				e.stopImmediatePropagation();
+				ShowBox._nextImage();
+            });
+            $('#prev-button').click(function(e){
+				e.stopImmediatePropagation();
+				ShowBox._prevImage();
+            });
+            $('#play-button').click(function(e){
+				e.stopImmediatePropagation();
+				ShowBox._play();
+            });
+            $('#pause-button').click(function(e){
+				e.stopImmediatePropagation();
+				ShowBox._pause();
             });
         }
     },
@@ -633,6 +660,11 @@ var ShowBox = {
         if(ShowBox._index >= total)
             ShowBox._index = 0;
         ShowBox._changeImage(ShowBox._index);
+		if(ShowBox._slideshow_on) {
+			ShowBox._stop();
+			ShowBox._slideshow_id = setTimeout(ShowBox._next, PhotoWall.options.slideDuration);
+			ShowBox._slideshow_on = true;
+		}
     },
     _prev: function() {
         var total = ShowBox._images[ShowBox._current].length;
@@ -640,6 +672,37 @@ var ShowBox = {
         if(ShowBox._index < 0)
             ShowBox._index = total-1;
         ShowBox._changeImage(ShowBox._index);
+    },
+    _nextImage: function() { //Invoked on mouse click or key press
+		ShowBox._pause();
+		ShowBox._next();
+    },
+    _prevImage: function() { //Invoked on mouse click or key press
+		ShowBox._pause();
+		ShowBox._prev();
+    },
+    _play: function() {
+		$('#play-button').hide();
+		$('#pause-button').show().css("display", "inline-block");
+		if(!ShowBox._slideshow_on) {
+			ShowBox._slideshow_on = true;
+			ShowBox._slideshow_id = setTimeout(ShowBox._next, PhotoWall.options.slideDuration);
+		}
+    },
+    _pause: function() {
+		$('#pause-button').hide();
+		$('#play-button').show().css("display", "inline-block");
+		ShowBox._stop();
+    },
+    _togglePlay: function() {
+		(ShowBox._slideshow_on) ? ShowBox._pause() : ShowBox._play();
+    },
+    _stop: function() {
+		if(ShowBox._slideshow_on) {
+			clearTimeout(ShowBox._slideshow_id);
+			ShowBox._slideshow_on = false;
+			ShowBox._slideshow_id = 0;
+		}
     },
     _show: function(gal) {
         var thc = $('#showbox-thc'+gal).detach();
@@ -752,25 +815,29 @@ var ShowBox = {
     },
     KEYPRESSED: function(e) {
         if(e.keyCode==27 || e.keyCode==13) {
+			ShowBox._stop();
             ShowBox.EXIT();
         }
-        if(e.keyCode==39 || e.keyCode==32) {
-            ShowBox._next();
+        if(e.keyCode==32) {
+			ShowBox._togglePlay();
+        }
+        if(e.keyCode==39) {
+            ShowBox._nextImage();
         }
         if(e.keyCode==37) {
-            ShowBox._prev();
+            ShowBox._prevImage();
         }
     },
     OPENPREVIEW: function(el){
         $(el).animate({bottom:0},{queue: false,duration:150});
     },
     CLOSEPREVIEW: function(el){
-        $(el).animate({bottom:-90},{queue: false,duration:150});
+        $(el).animate({bottom:-80},{queue: false,duration:150});
     },
     LOCKPREVIEW: function(el){
         ShowBox._preview_locked = ShowBox._preview_locked?false:true;
         if(ShowBox._preview_locked) {
-            $('#showbox .showbox-pv-lock').show();
+            $('#showbox .showbox-pv-lock').show().css("display", "inline-block");
             $(el).css({
                 'background': '#111',
                 'border-top': '1px solid #383838'

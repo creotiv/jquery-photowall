@@ -1,7 +1,6 @@
 a.nav-button:link, a.nav-button:visited {
 	color: #999;
 	text-decoration: none;
-	font-size: 2em;
 	font-family: Arial, Helvetica, sans-serif;
 	font-weight: bold;
 	background: transparent;
@@ -15,14 +14,44 @@ a.nav-button:active {
 	background: transparent;
 }
 .nav-button {
-    position:absolute;
-    top:50%;
+	font-size: 1.3em;
+	margin-left: 0.2em;
+	line-height: normal;
+	vertical-align: middle;
+	display: inline-block;
 }
-#next-button {
+#showbox-control-box {
+    position:absolute;
     right:2em;
 }
+#showbox-controls {
+    height: 1.8em;
+    line-height: 1.8em;
+    margin-bottom: 1px;
+}
+#pause-button {
+    display:none;
+    -ms-transform: scale(2.3,0.7); /* IE 9 */
+    -webkit-transform: scale(2.3,0.7); /* Safari */
+    transform: scale(2.4,0.6);
+	margin-left: 0.33em;
+}
+#play-button {
+    -ms-transform: scale(1.4,1.4); /* IE 9 */
+    -webkit-transform: scale(1.4,1.4); /* Safari */
+    transform: scale(2.3,1.4) translate(0,-1px);
+	margin-left: 0.3em;
+	margin-right: 0.21em;
+}
 #prev-button {
-    left:2em;
+	margin-left: 0;
+}
+#nav-box {
+	padding: 3px;
+	border-radius: 3px;
+	background: #222;
+	/* Space to lock icon on right */
+	margin-right:1em;
 }
 
 div.pw-photo {
@@ -93,7 +122,7 @@ img.pw-photo-zoomed {
 	fontsize:12px;
 }
 #showbox-exit:hover {
-text-decoration:underline;
+	text-decoration:underline;
 }
 #showbox-loader {
     position: absolute;
@@ -111,10 +140,10 @@ text-decoration:underline;
     cursor:pointer;
 }
 #showbox .showbox-desc {
-color:white;
-margin-top:10px;
-font-family:Verdana;
-font-size:12px;
+	color:white;
+	margin-top:10px;
+	font-family:Verdana;
+	font-size:12px;
 }
 #showbox .showbox-menubar {
     text-align: center;
@@ -131,33 +160,37 @@ font-size:12px;
     height: 95px;
     width:100%;
     bottom:-90px;
+    bottom:-80px;
     left:0px;
     padding: 5px 0 15px 0 ;
     overflow:hidden;
 }
 #showbox .showbox-preview p {
-text-align: center;
-color: #919191;
-font-family: Arial,Tahoma,Serif;
-font-size: 12px;
-margin-bottom: 5px;
+	text-align: center;
+	color: #919191;
+	font-family: Arial,Tahoma,Serif;
+	font-size: 12px;
+	margin-bottom: 2px;
+	margin-top: 2px;
 }
 #showbox .showbox-pv-lock {
     width:13px;
     height:9px;
     background: url(lock.gif);
-    position:absolute;
-    right:10px;
-    top:10px;
+    position:relative;
     display:none;
 }
 #showbox .showbox-th-counter {
-    text-align:center;
     color: #919191;
     font-family: Arial,Tahoma,Serif;
     font-size:12px;
-    height: 15px;
-    margin-bottom: 5px;
+	position: absolute;
+	left: 50%;
+    line-height: normal;
+}
+.showbox-th-container {
+    position:relative;
+    width: 90000px;
 }
 .showbox-th-container {
     position:relative;
