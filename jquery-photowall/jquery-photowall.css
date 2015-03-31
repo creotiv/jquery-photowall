@@ -1,3 +1,30 @@
+a.nav-button:link, a.nav-button:visited {
+	color: #999;
+	text-decoration: none;
+	font-size: 2em;
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	background: transparent;
+}
+a.nav-button:hover {
+	color: #eee;
+	background: transparent;
+}
+a.nav-button:active {
+	color: #555;
+	background: transparent;
+}
+.nav-button {
+    position:absolute;
+    top:50%;
+}
+#next-button {
+    right:2em;
+}
+#prev-button {
+    left:2em;
+}
+
 div.pw-photo {
 
 }
