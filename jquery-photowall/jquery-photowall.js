@@ -511,6 +511,7 @@ var ShowBox = {
     _th: null,
 	_slideshow_on:false,
 	_slideshow_id: 0,
+	_preview_hidden_bottom: -80,
     options: [],
 
     init: function(el,op) {
@@ -542,17 +543,18 @@ var ShowBox = {
                 +'    <p class="showbox-desc select" unselectable="off"></span></p>'
                 +'    </div>'
                 +'    <div id="showbox-loader"></div>'
-                +'    <div class="showbox-preview unselect">'
+                +'    <div class="showbox-preview unselect tohide">'
                 +'        <div id="showbox-controls">'
+                +'        <span class="showbox-pv-lock"></span>'
                 +'        <span class="showbox-th-counter" unselectable="on"></span>'
                 +'        <span id="showbox-control-box"  class="hidable">'
                 +'        <span id="nav-box">'
-                +'        <a id="prev-button" class="nav-button" href="#">❰</a>'
-                +'        <a id="play-button" class="nav-button" href="#">▸</a>'
-                +'        <a id="pause-button" class="nav-button" href="#">║</a>'
-                +'        <a id="next-button" class="nav-button" href="#">❱</a>'
+                +'        <span id="prev-button" class="nav-button">❮</span>'
+                +'        <span id="play-button" class="nav-button">►</span>'
+                +'        <span id="pause-button" class="nav-button">‖</span>'
+                +'        <span id="next-button" class="nav-button">❯</span>'
+                +'        <span id="fullscreen-button" class="nav-button">&nbsp;</span>'
                 +'        </span>'
-                +'        <span class="showbox-pv-lock"></span>'
                 +'        </span>'
                 +'        </div>'
                 +'    </div>'
@@ -562,6 +564,9 @@ var ShowBox = {
         $('body').append(            
             '<div id="showbox-thc'+(ShowBox.options.length-1)+'" style="overflow:hidden;width:100%;position:absolute;top:-999999px;"><div class="showbox-th-container clearfix"></div><p>Browse pictures by using the arrows of your keyboard or by clicking on the current picture.</p></div>'
         );
+		if (screenfull.enabled) {
+		   $('#fullscreen-button').show();
+		}
         var i = 0;
         var lc  = ShowBox._images.length-1;
         $(el).each(function(){
@@ -602,7 +607,10 @@ var ShowBox = {
             });
             $('#showbox .showbox-preview').mouseenter(function(){    
                 if(ShowBox._preview_locked) return;
-                ShowBox.OPENPREVIEW(this);
+				setTimeout(function() {
+					if($('#showbox-control-box:hover').length == 0)
+                		ShowBox.OPENPREVIEW($('#showbox .showbox-preview'));
+					}, 100);
             });
             $('#showbox .showbox-preview').mouseleave(function(){
                 if(!ShowBox._opened) return;
@@ -638,6 +646,27 @@ var ShowBox = {
 				e.stopImmediatePropagation();
 				ShowBox._pause();
             });
+            $('#fullscreen-button').click(function(e){
+				e.stopImmediatePropagation();
+				var target = $('.showbox-image')[0];
+				screenfull.request(target);
+            });
+			$(document).on(screenfull.raw.fullscreenchange, function () {
+    			console.log('Fullscreen change: ' + screenfull.isFullscreen);
+				if(screenfull.isFullscreen) {
+        			$('#showbox .showbox-desc').hide();
+       				var controls = $('#showbox-control-box').clone(true).addClass("fullScreen_controls").css({position:"absolute", zIndex:1000, bottom: "1em", right:"2em", marginRight:"2em"});
+        			controls.appendTo('#showbox .showbox-image');
+					$('#fullscreen-button').hide();
+				} else {
+					$('.fullScreen_controls').remove();
+					ShowBox._adjustPlayButtons(ShowBox._slideshow_on);
+					$('#fullscreen-button').show();
+        			$('#showbox .showbox-desc').show();
+        			ShowBox._changeImage(ShowBox._index);
+				}
+
+			});
         }
     },
     _parseGet: function() {
@@ -682,18 +711,25 @@ var ShowBox = {
 		ShowBox._prev();
     },
     _play: function() {
-		$('#play-button').hide();
-		$('#pause-button').show().css("display", "inline-block");
+		ShowBox._adjustPlayButtons(true);
 		if(!ShowBox._slideshow_on) {
 			ShowBox._slideshow_on = true;
 			ShowBox._slideshow_id = setTimeout(ShowBox._next, PhotoWall.options.slideDuration);
 		}
     },
     _pause: function() {
-		$('#pause-button').hide();
-		$('#play-button').show().css("display", "inline-block");
+		ShowBox._adjustPlayButtons(false);
 		ShowBox._stop();
     },
+	_adjustPlayButtons: function(on) {
+		if(on) {
+			$('#play-button').hide();
+			$('#pause-button').show().css("display", "inline-block");
+		} else {
+		    $('#pause-button').hide();
+			$('#play-button').show().css("display", "inline-block");
+		}
+	},
     _togglePlay: function() {
 		(ShowBox._slideshow_on) ? ShowBox._pause() : ShowBox._play();
     },
@@ -717,6 +753,7 @@ var ShowBox = {
         $('#showbox').fadeIn(200,function() {
             ShowBox._changeImage(ShowBox._index);
         });
+		ShowBox.CLOSEPREVIEW($('#showbox .showbox-preview'));
     },
     _addThumb: function(gal,im,i,desc) {
 		$('<div class="showbox-th"><img src="'+im+'" title="'+escapeHtml(desc)+'" /></div>')
@@ -832,31 +869,27 @@ var ShowBox = {
         $(el).animate({bottom:0},{queue: false,duration:150});
     },
     CLOSEPREVIEW: function(el){
-        $(el).animate({bottom:-80},{queue: false,duration:150});
+        var gal = (ShowBox.options.length-1);
+		var bot = -$('#showbox-thc'+(ShowBox.options.length-1)).height();
+        $(el).animate({bottom:bot},{queue: false,duration:150});
     },
     LOCKPREVIEW: function(el){
         ShowBox._preview_locked = ShowBox._preview_locked?false:true;
         if(ShowBox._preview_locked) {
             $('#showbox .showbox-pv-lock').show().css("display", "inline-block");
-            $(el).css({
-                'background': '#111',
-                'border-top': '1px solid #383838'
-            });
+            $(el).addClass("preview-locked");
         } else {
             $('#showbox .showbox-pv-lock').hide();
-            $(el).css({
-                'background': '',
-                'border-top': ''
-            });
+            $(el).removeClass("preview-locked");
         }
     },
     RESIZE: function(el){
         if(!ShowBox._opened) return;
         var showbox = $('#showbox');
         var img = $('#showbox .showbox-image img');
-        var cW  = showbox.width();
-        var cH  = showbox.height()-146;
-        if(!ShowBox.options[ShowBox._current].menuBarContent)
+        var cW  = (screenfull.isFullscreen) ? $(window).width() : showbox.width();
+        var cH  = (screenfull.isFullscreen) ? $(window).height() : showbox.height()-146;
+        if(!ShowBox.options[ShowBox._current].menuBarContent && !screenfull.isFullscreen)
             cH  = showbox.height()-111;
         var iH  = parseInt(img.attr('height'));
         var iW  = parseInt(img.attr('width'))
@@ -885,15 +918,29 @@ var ShowBox = {
         $('#showbox .showbox-image').css({
             'width': imW+'px',
             'height': imH+'px',
-            'margin-left': imL+'px',
-            'margin-top': imT+'px'
         }).find(' img').css({
             'width': imW+'px',
             'height': imH+'px'
         });
-        var thL = Math.round(cW/2) - (ShowBox._index * 64 + 30);
-        $('#showbox .showbox-th-container').animate({
-            left:  thL
-        },{duration:300,queue:false});	
+		/*
+		console.log("fullscreen: " + screenfull.isFullscreen + ", "
+		 + $('#showbox .showbox-desc').text()
+		 + "  imL: " + imL + ", imT: " + imT);
+		 */
+		if(screenfull.isFullscreen) {
+		  	$('#showbox .showbox-image img').css({
+            	'margin-left': imL+'px',
+            	'margin-top': imT+'px'
+            });
+		} else {
+		  	$('#showbox .showbox-image').css({
+            	'margin-left': imL+'px',
+            	'margin-top': imT+'px'
+            });
+        	var thL = Math.round(cW/2) - (ShowBox._index * 64 + 30);
+        	$('#showbox .showbox-th-container').animate({
+            	left:  thL
+        	},{duration:300,queue:false});	
+		}
 	}
 }
