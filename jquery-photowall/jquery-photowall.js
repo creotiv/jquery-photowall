@@ -658,6 +658,14 @@ var ShowBox = {
        				var controls = $('#showbox-control-box').clone(true).addClass("fullScreen_controls").css({position:"absolute", zIndex:1000, bottom: "1em", right:"2em", marginRight:"2em"});
         			controls.appendTo('#showbox .showbox-image');
 					$('#fullscreen-button').hide();
+
+                    // IE11 fullscreen bug workarounds
+                    if($.browser.msie) {
+                        $('.tohide').hide();
+                        $('#showbox .showbox-image').css({
+                            'margin': 0
+                        });
+                    }
 				} else {
 					$('.fullScreen_controls').remove();
 					ShowBox._adjustPlayButtons(ShowBox._slideshow_on);
