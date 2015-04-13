@@ -10,14 +10,22 @@ Demo
 How to use
 ==========
 
-Add three lines to the HEAD:
+Add the following lines to the HEAD:
 
 ::
 
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script> 
+    <script type="text/javascript" src="http://code.jquery.com/ui/1.8.21/jquery-ui.min.js"></script>
+    <script src="jquery.ui.touch-punch.min.js"></script>
+    <link rel="stylesheet" type="text/css" id="device-style" href="">
+	<script type="text/javascript" src="screenfull.js"></script>
     <script type="text/javascript" src="jquery-photowall.js"></script> 
     <link rel="stylesheet" type="text/css" href="jquery-photowall.css">
-    
+
+screenfull handles the variations between how the browsers handle HTML5 fullscreen. jquery-ui is for
+dragging, and touch-punch allows it to work on touch screens. device-style is a placeholder that is
+filled in dynamically for browsers that do not respect CSS3 media rules.
+
 Add this to page code:
 
 ::
