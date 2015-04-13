@@ -1,0 +1,16 @@
+/* PhotoWall adjustments for screen widths < 7 inches */
+#showbox {
+	font-size: 32px;
+}
+#showbox .showbox-preview {
+	height: 137px;
+}
+#showbox .showbox-desc, #showbox .showbox-th-counter, #showbox-exit {
+	font-size: .6em;
+}
+#pause-button {
+	padding: 1px 0.3em 3px 0.3em;
+}
+#showbox .showbox-pv-lock {
+    bottom: 82px;
+}
