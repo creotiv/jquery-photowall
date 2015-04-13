@@ -19,7 +19,9 @@
 }
 #showbox-control-box {
     position:absolute;
-    right:1em;
+    position:relative;
+    right:0;
+    float: right;
     margin-bottom: 3px;
 }
 #showbox-controls {
@@ -33,7 +35,7 @@
 #prev-button {
     margin-left: 0;
 }
-#fullscreen-button {
+#fullscreen-button, #no-fullscreen-button {
     border: 1px #e5e5e5 dashed;
     border-radius: 0;
     display: none;
@@ -91,12 +93,15 @@ img.pw-photo-zoomed {
     position:fixed;
     width:100%;
     height:100%;
+    min-width:100%;
+    min-height:100%;
     top:0px;
     left:0px;
     background:#000;
     z-index: 1001;
     overflow:hidden;
     font-size: 16px;
+    font-family:Verdana;
 }
 #showbox p {
     margin-bottom:0;
@@ -108,6 +113,12 @@ img.pw-photo-zoomed {
     -o-user-select: none;
     user-select: none;
 }
+div.showbox-thc {
+    overflow:hidden;
+    width: 100%;
+	position:relative;
+	top:-999999px;
+}
 #showbox-exit {
     width:140px;
     height:16px;
@@ -118,7 +129,7 @@ img.pw-photo-zoomed {
     z-index: 1002;
     cursor:pointer;
     color:white;
-    font-family:verdana;
+    font-family:Verdana;
     font-size:.8em;
 }
 #showbox-exit:hover {
@@ -128,10 +139,10 @@ img.pw-photo-zoomed {
     position: absolute;
     top: 50%;
     left:50%;
-    width: 16px;
-    height: 16px;
-    background: #000 url(loader.gif);
-    margin:-80px 0 0 -8px;
+    width: 64px;
+    height: 64px;
+    background-size: 100% auto; /* Ignored by some browsers */
+    background: url(loader.gif) no-repeat;
 }
 #showbox .showbox-image {
     position:relative;
@@ -142,16 +153,22 @@ img.pw-photo-zoomed {
 #showbox .showbox-desc {
     color:white;
     margin-top:.05em;
-    font-family:Verdana;
+    padding-left:.2em;
     font-size:.8em;
 }
 #showbox .showbox-menubar {
     text-align: center;
     width: 100%;
-    font-family: Arial,Tahoma,Serif;
     color: #919191;
     height: 35px;
     position: relative;
+}
+#showbox-menubar {
+    overflow:hidden;
+    width:100%;
+    position:absolute;
+    position: relative;
+    top:-999999px;
 }
 #showbox .showbox-preview {
     background: transparent;
@@ -165,8 +182,7 @@ img.pw-photo-zoomed {
 #showbox .showbox-preview p {
     text-align: center;
     color: #919191;
-    font-family: Arial,Tahoma,Serif;
-    font-size: 12px;
+    font-size: 0.6em;
     margin-bottom: 2px;
     margin-top: 2px;
 }
@@ -175,23 +191,22 @@ img.pw-photo-zoomed {
 #showbox .showbox-pv-lock {
     width:13px;
     height:9px;
-    background: url(lock.gif);
+    width:26px;
+    height:18px;
+    background-size: 100% auto; /* Ignored by some browsers */
+    background: url(lock.gif) no-repeat;
     position: absolute;
-    left: 1em;
+    left: 0.5em;
+    bottom: 70px;
     display:none;
 }
 #showbox .showbox-th-counter {
     color: #919191;
-    font-family: Arial,Tahoma,Serif;
-    font-size:.6em;
+    font-size:.8em;
     position: absolute;
-    left: 50%;
-    top: 2em;
-    line-height: normal;
-}
-.showbox-th-container {
-    position:relative;
-    width: 90000px;
+    right: 0px;
+    margin-top:.05em;
+    padding-right:.2em;
 }
 .showbox-th-container {
     position:relative;
@@ -267,12 +282,39 @@ div:fullscreen {
 
 /* For small devices like smartphones
    Unfortunately it appears the stock browser and Dolphin on Android
-   ignore this directive, even the CSS2 "media handheld". Chrome on
-   Android respects it.
+   ignore this directive. Chrome on Android respects it but has a bug
+   where it for the @media rule doesn't take into account viewport size
+   so it acts on 2x the real size (4in for 2in). Small devices other
+   than Chrome are assigned an auxiliary style sheet in the code based
+   on their estimated screen size.
 */
+
+/* Galaxy Tab Pro portrait */
+@media   (min-device-width: 800px) and (max-device-width: 1280px) and (max-device-width: 8.5in) and (orientation: portrait) {
+#showbox .showbox-preview {
+    height: 103px;
+}
+}
+
+/* Galaxy Tab Pro landscape */
+@media (min-device-width: 800px) and (max-device-width: 1280px) and (max-device-width: 13.5in) and (orientation: landscape) {
+#showbox .showbox-preview {
+    height: 83px;
+}
+}
+
+@media (max-device-width: 4in) {
+#showbox .showbox-preview {
+    height: 98px;
+}
+}
+
 @media (max-device-width: 7in) {
 
 /* Bigger baseline font for elements inside */
+/*
+No need for these since Chrome adjusts automatically
+
 #showbox {
     font-size: 32px;
 }
@@ -288,5 +330,5 @@ div:fullscreen {
 #pause-button {
     padding: 1px 0.3em 3px 0.3em;
 }
-
+*/
 }

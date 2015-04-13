@@ -25,32 +25,6 @@
     WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-function getScrollBarWidth () {
-	var inner = document.createElement('p');
-	inner.style.width = "100%";
-	inner.style.height = "200px";
- 
-	var outer = document.createElement('div');
-	outer.style.position = "absolute";
-	outer.style.top = "0px";
-	outer.style.left = "0px";
-	outer.style.visibility = "hidden";
-	outer.style.width = "200px";
-	outer.style.height = "150px";
-	outer.style.overflow = "hidden";
-	outer.appendChild (inner);
- 
-	document.body.appendChild (outer);
-	var w1 = inner.offsetWidth;
-	outer.style.overflow = 'scroll';
-	var w2 = inner.offsetWidth;
-	if (w1 == w2) w2 = outer.clientWidth;
- 
-	document.body.removeChild (outer);
- 
-	return (w1 - w2);
-};
- 
 function $_GET(){
   var s = location.hash;
   a = s.match(/[^&#=]*=[^&#=]*/g);
@@ -73,7 +47,7 @@ return unsafe
 }
 
 // Hotfix for adding jQuery.browser method onto newer versions (it got deprecated)
-if ( !jQuery.browser ) {
+//if ( !jQuery.browser ) {
 	jQuery.uaMatch = function( ua ) {
 		ua = ua.toLowerCase();
 		var match = /(chrome)[ \/]([\w.]+)/.exec( ua ) ||
@@ -101,6 +75,41 @@ if ( !jQuery.browser ) {
     	browser.safari = true;
 	}
 	jQuery.browser = browser;
+//}
+
+function isMobile() {
+    return ('ontouchstart' in window);
+}
+
+function isWebkitMobile() {
+    return (isMobile() && typeof document.body.style.webkitTextCombine === 'string');
+}
+
+function getScreenDimensions() {
+	var d = document.createElement('div');
+    d.style.position = 'absolute';
+    d.style.left = '-100%';
+    d.style.top = '-100%';
+    d.style.width = '1in';
+    d.style.height = '1in';
+	document.body.appendChild (d);
+    var devicePixelRatio = window.devicePixelRatio || 1;
+    var dpi_x = d.offsetWidth * devicePixelRatio;
+    var dpi_y = d.offsetHeight * devicePixelRatio;
+	document.body.removeChild(d);
+    var width = screen.width;
+    var height = screen.height;
+    // Android browsers other than Chrome currently report physical rather than
+    // viewport screen size (April 2015)
+    if (isWebkitMobile() && !($.browser.chrome)) {
+        width = width / (dpi_x / 96.0);
+        height = height / (dpi_x / 96.0);
+    }
+    var width_in = width / dpi_x;
+    var height_in = height / dpi_y;
+    var dim = {width: width_in, height: height_in};
+//    alert(dim.width + 'in wide x ' + dim.height + 'in high');
+    return dim;
 }
 
 /*
@@ -122,6 +131,8 @@ var PhotoWall = {
 	_inited: false,
 	_block_resize: false,
 	_line_max_height:0,
+    _body_overflow: $('body').css('overflow'),
+    _script_path: $("script[src]").last().attr("src").split('?')[0].split('/').slice(0, -1).join('/')+'/',
 	
 	options: {
         lineMaxHeight:150
@@ -136,14 +147,14 @@ var PhotoWall = {
         ,zoomImageBorder:5
         ,showBoxPadding: 2
         ,showBoxSocial: true
-		,slideDuration:3000
+		,slideDuration:5000
     },
 	
 	init: function(op) {	
 	    PhotoWall.options = $.extend(PhotoWall.options,op);
         PhotoWall.options.baseScreenHeight = $(window).height();
 		PhotoWall._el = op.el+' .body';
-		PhotoWall._c_width = $(PhotoWall._el).width()-getScrollBarWidth();
+		PhotoWall._c_width = $(PhotoWall._el).width();
 		PhotoWall._c_height = $(PhotoWall._el).height();	
 		PhotoWall._line_max_height = PhotoWall.options.lineMaxHeight;
 		PhotoWall._setLineMaxHeightDynamic();
@@ -272,6 +283,7 @@ var PhotoWall = {
 				t = addImage(line[k].id,PhotoWall.options.padding,w,h,line[k].img,line[k].th.src,null,null,line[k].th.desc);
 				ln.append(t);
 			}
+			ln.css({'width': PhotoWall._c_width});
 			return t;
 		};/* End of showLine() */
 
@@ -347,7 +359,7 @@ var PhotoWall = {
 	    if(PhotoWall._c_width < $(PhotoWall._el).width()) {
             PhotoWall.RESIZE();
 	    }
-		    
+		$('.pw-line').css({'width': PhotoWall._c_width + 'px'});
 		if(!PhotoWall._inited) {
 		    PhotoWall._inited = true;
 		    PhotoWall.initGUI();
@@ -511,7 +523,7 @@ var ShowBox = {
     _th: null,
 	_slideshow_on:false,
 	_slideshow_id: 0,
-	_preview_hidden_bottom: -80,
+    _hover_show_duration: 5000,
     options: [],
 
     init: function(el,op) {
@@ -529,7 +541,7 @@ var ShowBox = {
         ShowBox._images.push([]);
         if(ShowBox.options[ShowBox.options.length-1].menuBarContent) {
             $('body').append(                 
-                '<div id="showbox-menubar'+(ShowBox.options.length-1)+'" style="overflow:hidden;width:100%;position:absolute;top:-999999px;">'
+                '<div id="showbox-menubar'+(ShowBox.options.length-1)+'">'
                 +         ShowBox.options[ShowBox.options.length-1].menuBarContent
                 +'</div>'
             );
@@ -540,13 +552,13 @@ var ShowBox = {
                 +'    <div id="showbox-exit" class="hidable">Back to the gallery</div>'
                 +'    <div class="showbox-menubar unselect" unselectable="on" style="display:none !important;"></div>'
                 +'    <div class="showbox-image unselect" unselectable="on">'
+                +'        <p class="showbox-th-counter" unselectable="on"></p>'
                 +'    <p class="showbox-desc select" unselectable="off"></span></p>'
                 +'    </div>'
                 +'    <div id="showbox-loader"></div>'
                 +'    <div class="showbox-preview unselect tohide">'
                 +'        <div id="showbox-controls">'
                 +'        <span class="showbox-pv-lock"></span>'
-                +'        <span class="showbox-th-counter" unselectable="on"></span>'
                 +'        <span id="showbox-control-box"  class="hidable">'
                 +'        <span id="nav-box">'
                 +'        <span id="prev-button" class="nav-button">❮</span>'
@@ -554,16 +566,20 @@ var ShowBox = {
                 +'        <span id="pause-button" class="nav-button">‖</span>'
                 +'        <span id="next-button" class="nav-button">❯</span>'
                 +'        <span id="fullscreen-button" class="nav-button">&nbsp;</span>'
+                +'        <span id="no-fullscreen-button" class="nav-button">X</span>'
                 +'        </span>'
                 +'        </span>'
+                +'        </div>'
+                +'        <div id="showbox-thc'+(ShowBox.options.length-1)+'" class="showbox-thc">'
+                +'          <div class="showbox-th-container clearfix"></div>'
+                +'          <p>Browse pictures by using the arrows of your keyboard or by clicking on the current picture.</p>'
                 +'        </div>'
                 +'    </div>'
                 +'</div>'
             ).appendTo('body');
         }
-        $('body').append(            
-            '<div id="showbox-thc'+(ShowBox.options.length-1)+'" style="overflow:hidden;width:100%;position:absolute;top:-999999px;"><div class="showbox-th-container clearfix"></div><p>Browse pictures by using the arrows of your keyboard or by clicking on the current picture.</p></div>'
-        );
+        ShowBox._adjustToScreenSize();
+        // Only show the full screen button if the browser supports it
 		if (screenfull.enabled) {
 		   $('#fullscreen-button').show();
 		}
@@ -575,6 +591,25 @@ var ShowBox = {
             ShowBox._addThumb(lc,ShowBox._images[lc][i][1],i,ShowBox._images[lc][i][2]);
             i++;
         });
+    },
+    _adjustToScreenSize: function() {
+        // dolphin and perhaps other mobile browsers do not recognize the @media
+        // rule for physical screen size, so handle adjustments here manually
+        if($.browser.chrome) {
+            // Chrome does a good job of automatically adjusting to the viewport
+            return;
+        }
+        var dim = getScreenDimensions();
+        if(dim.width < 1.5) {
+            var device_css =  PhotoWall._script_path + 'one-five-inch.css';
+            $('#device-style').attr('href', device_css);
+        } else if(dim.width < 3) {
+            var device_css =  PhotoWall._script_path + 'three-inch.css';
+            $('#device-style').attr('href', device_css);
+        } else if(dim.width < 7) {
+            var device_css =  PhotoWall._script_path + 'seven-inch.css';
+            $('#device-style').attr('href', device_css);
+        }
     },
     _initEvents: function(el) {
         if(el) {
@@ -605,7 +640,8 @@ var ShowBox = {
                 if(!ShowBox._opened) return;
                 ShowBox.EXIT(this);
             });
-            $('#showbox .showbox-preview').mouseenter(function(){    
+            $('#showbox .showbox-preview').mouseenter(function(){
+                if(isMobile()) return; // Only use tap to activate on touch screens
                 if(ShowBox._preview_locked) return;
 				setTimeout(function() {
 					if($('#showbox-control-box:hover').length == 0)
@@ -614,22 +650,44 @@ var ShowBox = {
             });
             $('#showbox .showbox-preview').mouseleave(function(){
                 if(!ShowBox._opened) return;
+                if(isMobile()) return; // Only use tap to activate on touch screens
                 if(ShowBox._preview_locked) return;
                 ShowBox.CLOSEPREVIEW(this);
             });
-            $('#showbox .showbox-preview').click(function(){
+            $('#showbox .showbox-preview').click(function(e){
+				e.stopImmediatePropagation();
                 if(!ShowBox._opened) return;
                 ShowBox.LOCKPREVIEW(this);
+                if(ShowBox._preview_locked)
+                	ShowBox.OPENPREVIEW(this);
+                else
+                    ShowBox.CLOSEPREVIEW(this);
             });
             $(window).resize(function(){
                 ShowBox.RESIZE(this);
             });
             $('#showbox').mouseenter(function(){
+                clearTimeout($(this).data('timeoutId'));
+				$('.hidable').animate({"opacity":1},{duration:500});
+            }).mouseleave(function(){
+                var el = $(this);
+                var timeoutId = setTimeout(function(){
+                    $('.hidable').animate({"opacity":0},{duration:500});
+                }, ShowBox._hover_show_duration);
+                el.data('timeoutId', timeoutId); 
+            });
+/*
+            $('#showbox').mouseenter(function(){
 				$('.hidable').animate({"opacity":1},{duration:500});
             });
             $('#showbox').mouseleave(function(){
-				$('.hidable').animate({"opacity":0},{duration:500});
+                if($('#showbox:hover').length == 0) {
+                    setTimeout(function() {
+                        $('.hidable').animate({"opacity":0},{duration:500});
+                    }, ShowBox._hover_show_duration);
+                }
             });
+*/
             $('#next-button').click(function(e){
 				e.stopImmediatePropagation();
 				ShowBox._nextImage();
@@ -651,13 +709,51 @@ var ShowBox = {
 				var target = $('.showbox-image')[0];
 				screenfull.request(target);
             });
+            $('#no-fullscreen-button').click(function(e){
+				e.stopImmediatePropagation();
+				screenfull.exit();
+            });
+            $('#showbox .showbox-image').draggable({axis:'x',
+                revert: true,
+                revertDuration: 0,
+                stop: function( e, ui ) {
+                  if(ui.position.left == 0) {
+                      return;
+                  }
+                  if(ui.position.left < 0) {
+                    ShowBox._nextImage();
+                  } else {
+                    ShowBox._prevImage();
+                  }
+                }
+            });
+        	$('#showbox .showbox-th-container').draggable({axis:'x'});
+            $(window).on("orientationchange",function(event){
+                if(ShowBox.opened()) {
+                    // Brute force for now, couldn't find a way to get the browser to redo
+                    // its layout entirely based on the orientation change
+                    location.reload();
+                }
+                //alert("Orientation is: " + event.orientation);
+            });
+            window.onhashchange = function() {
+                var get = $_GET();
+                if(get['p'] && get['gal']) {
+                    ShowBox._parseGet();
+                } else {
+                    ShowBox.EXIT();
+                }
+            };
+		if (screenfull.enabled) {
 			$(document).on(screenfull.raw.fullscreenchange, function () {
-    			console.log('Fullscreen change: ' + screenfull.isFullscreen);
+    			//console.log('Fullscreen change: ' + screenfull.isFullscreen);
 				if(screenfull.isFullscreen) {
         			$('#showbox .showbox-desc').hide();
-       				var controls = $('#showbox-control-box').clone(true).addClass("fullScreen_controls").css({position:"absolute", zIndex:1000, bottom: "1em", right:"2em", marginRight:"2em"});
+       				var controls = $('#showbox-control-box').clone(true).addClass("fullScreen_controls")
+                        .css({position:"fixed", bottom: "3px"});
         			controls.appendTo('#showbox .showbox-image');
 					$('#fullscreen-button').hide();
+					$('#no-fullscreen-button').show();
 
                     // IE11 fullscreen bug workarounds
                     if($.browser.msie) {
@@ -666,15 +762,39 @@ var ShowBox = {
                             'margin': 0
                         });
                     }
+                    // Android bug workarounds
+                    if(isWebkitMobile()) {
+                        $('.tohide').hide();
+		                $(PhotoWall._el).hide();
+                        $('#showbox .showbox-image').css({
+                            'position': 'fixed',
+                            'top': 0,
+                            'left': 0,
+                            'right': 0,
+                            'bottom': 0
+                        });
+                    }
 				} else {
 					$('.fullScreen_controls').remove();
 					ShowBox._adjustPlayButtons(ShowBox._slideshow_on);
+					$('#no-fullscreen-button').hide();
 					$('#fullscreen-button').show();
-        			$('#showbox .showbox-desc').show();
+                    // Android bug workarounds
+                    if(isWebkitMobile()) {
+                        $('.tohide').show();
+		                $(PhotoWall._el).show();
+                        $('#showbox .showbox-image').css({
+                            'position': 'relative'
+                        });
+                        ShowBox.CLOSEPREVIEW($('#showbox .showbox-preview'));
+                    }
+                    // Have to recalculate and redisplay image
         			ShowBox._changeImage(ShowBox._index);
+        			$('#showbox .showbox-desc').show();
 				}
 
 			});
+          }
         }
     },
     _parseGet: function() {
@@ -697,11 +817,6 @@ var ShowBox = {
         if(ShowBox._index >= total)
             ShowBox._index = 0;
         ShowBox._changeImage(ShowBox._index);
-		if(ShowBox._slideshow_on) {
-			ShowBox._stop();
-			ShowBox._slideshow_id = setTimeout(ShowBox._next, PhotoWall.options.slideDuration);
-			ShowBox._slideshow_on = true;
-		}
     },
     _prev: function() {
         var total = ShowBox._images[ShowBox._current].length;
@@ -749,11 +864,12 @@ var ShowBox = {
 		}
     },
     _show: function(gal) {
+        $('.pw-line').hide();
         var thc = $('#showbox-thc'+gal).detach();
         var mb = $('#showbox-menubar'+gal).detach();
         thc.appendTo('#showbox .showbox-preview');
         mb.prependTo('#showbox .showbox-menubar');
-        thc.css({position:'relative',top:'0px'});
+        thc.css({top:'0px'});
         mb.css({position:'relative',top:'0px'});
         
         $('#showbox-loader').show();
@@ -761,7 +877,8 @@ var ShowBox = {
         $('#showbox').fadeIn(200,function() {
             ShowBox._changeImage(ShowBox._index);
         });
-		ShowBox.CLOSEPREVIEW($('#showbox .showbox-preview'));
+        if(!ShowBox._preview_locked)
+		    ShowBox.CLOSEPREVIEW($('#showbox .showbox-preview'));
     },
     _addThumb: function(gal,im,i,desc) {
 		$('<div class="showbox-th"><img src="'+im+'" title="'+escapeHtml(desc)+'" /></div>')
@@ -797,45 +914,78 @@ var ShowBox = {
             ShowBox.options[ShowBox._current].onUpdate();
         }
     },
-    _changeImage: function(ind) {
-        $('#showbox-loader').show();
-        $('#showbox .showbox-menubar').hide();
-        $('#showbox .showbox-menubar').html('');	
-        ind = parseInt(ind);
-        var total = ShowBox._images[ShowBox._current].length;
-        ShowBox._setCounter(ind+1,total);
-        window.location.hash = 'p='+(ind+1)+'&gal='+(ShowBox._current+1);
-        $('#showbox .showbox-menubar').append('<div id="showbox-menubar'+ShowBox._current+'" style="position:relative;">'+ShowBox.options[ShowBox._current].menuBarContent+'</div>');
-        ShowBox._onChangePhoto();
-        ShowBox._index = ind;
+    _initImage: function(img, ind) {
+//        img.click(ShowBox._next);
+        //bugfix for IE
+        if($.browser.msie) {
+            try{
+                img.width();
+                img.height();
+             } catch(err){};
+        }
+        img.attr({
+            width:img.prop('width'),
+            height:img.prop('height')
+        });
+        ShowBox._images[ShowBox._current][ind].push(img);
+    },
+    _preloadImage: function(ind) {
+        if(ShowBox._images[ShowBox._current][ind].length < 4) {
+            var img = $('<img class="showbox-img" style="display:none;"/>');
+            img.attr('src',ShowBox._images[ShowBox._current][ind][0])
+            .load(function() {
+                ShowBox._initImage(img, ind);
+                if(ShowBox._index == ind) {
+                    var desc = ShowBox._images[ShowBox._current][ind][2];
+                    ShowBox._showImage(img, desc);
+                }
+            });
+        }
+    },
+    _showImage: function(img, desc) {
+		var slideshow_on = ShowBox._slideshow_on;
+		ShowBox._stop();
+//		$('#showbox .showbox-img img').animate({opacity:0},2000,
+//            function() { $('#showbox .showbox-img').remove(); });
         $('#showbox .showbox-img').remove();
         $('#showbox .showbox-desc').text("");
+		img.css({display:'block',opacity:0});
+        img.prependTo('#showbox .showbox-image');
+        $('#showbox .showbox-menubar').show();
+        ShowBox.RESIZE();
+        $('#showbox-loader').hide();
+        $('#showbox .showbox-image').css({opacity:1});
+        img.css({display:'block',opacity:0}).animate({opacity:1},600);
+        $('#showbox .showbox-desc').text(desc);
+        var total = ShowBox._images[ShowBox._current].length;
+        ShowBox._setCounter(ShowBox._index+1,total);
+		if(slideshow_on) {
+			ShowBox._play();
+		}
+        // Preload the next image
+        var ind = ShowBox._index + 1;
+        if(ind >= total)
+            ind = 0;
+        ShowBox._preloadImage(ind);
+    },
+    _changeImage: function(ind) {
+        ind = parseInt(ind);
+        window.location.hash = 'p='+(ind+1)+'&gal='+(ShowBox._current+1);
+        $('#showbox .showbox-menubar').html(ShowBox.options[ShowBox._current].menuBarContent);
+        ShowBox._onChangePhoto();
+        ShowBox._index = ind;
         ShowBox._th.removeClass('showbox-th-active');
         ShowBox._th = $('#showbox .showbox-th').eq(ind).addClass('showbox-th-active');
-        
-        var img = $('<img class="showbox-img" style="display:none;"/>')            
-        .prependTo('#showbox .showbox-image').click(ShowBox._next);    
-                      
-        img.attr('src',ShowBox._images[ShowBox._current][ind][0])
-        .load(function(){
-            //bugfix for IE
-            if($.browser.msie) {
-                try{
-                    $(this).width();
-                    $(this).height();
-                } catch(err){};
-            }
-            var iW = $(this).prop('width');
-            var iH = $(this).prop('height');
-            $(this).attr({
-                width:iW,
-                height:iH
-            }).fadeIn(400);
-            $('#showbox .showbox-desc').text(ShowBox._images[ShowBox._current][ind][2]);
-            $('#showbox-loader').hide();   
-            $('#showbox .showbox-menubar').show();
-            ShowBox.RESIZE();
-        });
+
+        // Is this image already downloaded?
+        if(ShowBox._images[ShowBox._current][ind].length > 3) {
+            var img = ShowBox._images[ShowBox._current][ind][3];
+            var desc = ShowBox._images[ShowBox._current][ind][2];
+            ShowBox._showImage(img, desc);
+        } else {
+            $('#showbox-loader').show();
+            ShowBox._preloadImage(ind);
+        }
     },
     _setCounter: function(num,total) {
         $('#showbox .showbox-th-counter').html(num+' of '+total);
@@ -849,19 +999,23 @@ var ShowBox = {
     EXIT: function(el){
         ShowBox._clearHash();
         ShowBox._opened = false;
+//        $('body').css('overflow',PhotoWall._body_overflow);
         $('body').css('overflow','auto');
         $('#showbox').hide();
         ShowBox.options[ShowBox._current].closeCallback();
         $('#showbox .showbox-menubar').hide();
         $('#showbox .showbox-image img').remove();
         $('#showbox .showbox-image p').text("");
-		$('#showbox-thc'+ShowBox._current).css({position:'absolute',top:'-10000px'}).detach().appendTo('body');
+		$('#showbox-thc'+ShowBox._current).css({top:'-10000px'}).detach().appendTo('body');
 		$('#showbox-menubar'+ShowBox._current).css({position:'absolute',top:'-10000px'}).detach().appendTo('body');
+        $('.pw-line').show();
     },
     KEYPRESSED: function(e) {
         if(e.keyCode==27 || e.keyCode==13) {
 			ShowBox._stop();
-            ShowBox.EXIT();
+            if(!screenfull.isFullscreen) {
+                ShowBox.EXIT();
+            }
         }
         if(e.keyCode==32) {
 			ShowBox._togglePlay();
@@ -878,8 +1032,18 @@ var ShowBox = {
     },
     CLOSEPREVIEW: function(el){
         var gal = (ShowBox.options.length-1);
-		var bot = -$('#showbox-thc'+(ShowBox.options.length-1)).height();
+		var bot = -$('#showbox-thc'+gal).height();
+        // Chrome mobile oddity
+        if (isWebkitMobile() && ($.browser.chrome)) {
+            if (Math.abs(window.orientation) == 90) {
+            } else {
+               bot += 20;
+            }
+        }
         $(el).animate({bottom:bot},{queue: false,duration:150});
+        ShowBox._preview_locked = false;
+        $('#showbox .showbox-pv-lock').hide();
+        $(el).removeClass("preview-locked");
     },
     LOCKPREVIEW: function(el){
         ShowBox._preview_locked = ShowBox._preview_locked?false:true;
@@ -896,33 +1060,16 @@ var ShowBox = {
         var showbox = $('#showbox');
         var img = $('#showbox .showbox-image img');
         var cW  = (screenfull.isFullscreen) ? $(window).width() : showbox.width();
-        var cH  = (screenfull.isFullscreen) ? $(window).height() : showbox.height()-146;
-        if(!ShowBox.options[ShowBox._current].menuBarContent && !screenfull.isFullscreen)
-            cH  = showbox.height()-111;
+        var gal = (ShowBox.options.length-1);
+		var bot = $('#showbox-thc'+gal).height();
+        var cH  = (screenfull.isFullscreen) ? $(window).height() : showbox.height() - bot;
         var iH  = parseInt(img.attr('height'));
         var iW  = parseInt(img.attr('width'))
-        var factor = 1;
-        if(iH > (cH)) {
-            factor = cH/iH;
-        }
-        if(iW > cW) {   
-            if(factor != 1) {
-                factor2 = cW/(iW*factor);
-                if(factor2 < 1) {
-                    factor *= factor2;
-                }
-            } else {
-                factor = cW/iW;
-            }
-        }
+        var factor = Math.min(cH/iH, cW/iW);
         var imW  = Math.round(factor * iW);
         var imH  = Math.round(factor * iH);
-        if(imH > iH || imW > iW) {
-            imW = iW;
-            imH = iH;
-        }
         var imL  = Math.round((cW - imW)/2);
-        var imT  = Math.round((cH - imH)/2)+5;
+        var imT  = Math.round((cH - imH)/2) /*+5*/;
         $('#showbox .showbox-image').css({
             'width': imW+'px',
             'height': imH+'px',
@@ -930,12 +1077,22 @@ var ShowBox = {
             'width': imW+'px',
             'height': imH+'px'
         });
-		/*
-		console.log("fullscreen: " + screenfull.isFullscreen + ", "
-		 + $('#showbox .showbox-desc').text()
-		 + "  imL: " + imL + ", imT: " + imT);
-		 */
+/*
+        console.log(
+        alert(
+                "cW=" + cW +", cH=" + cH + ", iW=" + iW + ", iH=" + iH + ", imW=" + imW + ", imH=" + imH
+                 + ", imL=" + imL + ", imT=" + imT
+                 + ", sbTop=" + $('#showbox .showbox-image').position().top + ", sbLeft=" + $('#showbox .showbox-image').position().left
+                 + ", sbW=" + $('#showbox .showbox-image').width() + ", sbH=" + $('#showbox .showbox-image').height()
+                 + ", wW=" + $(window).width() + ", wH=" + $(window).height()
+                 + ", dW=" + $(document).width() + ", dH=" + $(document).height()
+        );
+*/
 		if(screenfull.isFullscreen) {
+            $('#showbox .showbox-image').css({
+                'margin': '0px',
+                'min-height': '100%'
+            });
 		  	$('#showbox .showbox-image img').css({
             	'margin-left': imL+'px',
             	'margin-top': imT+'px'
@@ -944,6 +1101,9 @@ var ShowBox = {
 		  	$('#showbox .showbox-image').css({
             	'margin-left': imL+'px',
             	'margin-top': imT+'px'
+            });
+		  	$('#showbox .showbox-image img').css({
+            	'margin': '0px',
             });
         	var thL = Math.round(cW/2) - (ShowBox._index * 64 + 30);
         	$('#showbox .showbox-th-container').animate({
