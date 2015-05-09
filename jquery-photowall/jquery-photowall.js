@@ -600,16 +600,21 @@ var ShowBox = {
             return;
         }
         var dim = getScreenDimensions();
+		var device_css =  '';
         if(dim.width < 1.5) {
-            var device_css =  PhotoWall._script_path + 'one-five-inch.css';
-            $('#device-style').attr('href', device_css);
+            device_css =  PhotoWall._script_path + 'one-five-inch.css';
         } else if(dim.width < 3) {
-            var device_css =  PhotoWall._script_path + 'three-inch.css';
-            $('#device-style').attr('href', device_css);
+            device_css =  PhotoWall._script_path + 'three-inch.css';
         } else if(dim.width < 7) {
-            var device_css =  PhotoWall._script_path + 'seven-inch.css';
-            $('#device-style').attr('href', device_css);
+            device_css =  PhotoWall._script_path + 'seven-inch.css';
         }
+		if(device_css != '') {
+            $.when($.get(device_css))
+            .done(function(response) {
+                $('<style />').text(response).appendTo($('head'));
+            });
+//			alert('dim.width = ' + dim.width + ', css = ' + device_css);
+		}
     },
     _initEvents: function(el) {
         if(el) {
