@@ -309,26 +309,22 @@ div:fullscreen {
 }
 }
 
-@media (max-device-width: 7in) {
 
+@media (max-device-height: 7in) and (orientation: portrait) { 
 /* Bigger baseline font for elements inside */
-/*
-No need for these since Chrome adjusts automatically
-
 #showbox {
-    font-size: 32px;
+	font-size: 48px;
 }
 #showbox .showbox-preview {
-    height: 130px;
+	height: 195px;
 }
-#showbox .showbox-desc {
-    font-size:.6em;
 }
-#showbox-exit {
-    font-size:.6em;
+
+@media (max-device-width: 7in) and (orientation: landscape) { 
+#showbox {
+	font-size: 26px;
 }
-#pause-button {
-    padding: 1px 0.3em 3px 0.3em;
+#showbox .showbox-preview {
+	height: 130px;
 }
-*/
 }
