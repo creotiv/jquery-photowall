@@ -1,3 +1,57 @@
+.nav-button {
+    color: #999;
+    text-decoration: none;
+    font-family: "Courier New", Courier, monospace;
+    font-weight: bold;
+    background: transparent;
+    font-size: 1.3em;
+    margin: 0 0.1em 2px 0.1em;
+    line-height: normal;
+    vertical-align: middle;
+    display: inline-block;
+    border: 1px #e5e5e5 solid;
+    border-radius: 8px;
+    padding: 2px 0.25em 2px 0.25em;
+}
+.nav-button:hover {
+    color: #eee;
+    background: #555;
+}
+#showbox-control-box {
+    position:absolute;
+    position:relative;
+    right:0;
+    float: right;
+    margin-bottom: 3px;
+}
+#showbox-controls {
+    height: 2.2em;
+    line-height: 1.8em;
+    margin-bottom: 1px;
+}
+#pause-button {
+    display:none;
+}
+#prev-button {
+    margin-left: 0;
+}
+#fullscreen-button, #no-fullscreen-button {
+    border: 1px #e5e5e5 dashed;
+    border-radius: 0;
+    display: none;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    margin-right: 0;
+    margin-left: 1em;
+}
+#fullscreen-button:hover {
+    border: 1px #eee dashed;
+    background: #555;
+}
+#nav-box {
+    padding: 10px;
+}
+
 div.pw-photo {
 
 }
@@ -10,28 +64,28 @@ div.pw-crop {
     overflow: hidden;
 }
 div.pw-photo a {
-	text-decoration: none;
-	outline: none;
-	border: none;
+    text-decoration: none;
+    outline: none;
+    border: none;
 }
 div.pw-photo img {
-	background:white;
-	border:none;
-	outline: none;
-	zoom: 1;
+    background:white;
+    border:none;
+    outline: none;
+    zoom: 1;
 }
 .pw-photo-hover {
-	box-shadow: 		1px 1px 5px #333;			
-	-webkit-box-shadow:	1px 1px 5px #333;
-	-moz-box-shadow:	1px 1px 5px #333;
+    box-shadow:         1px 1px 5px #333;           
+    -webkit-box-shadow: 1px 1px 5px #333;
+    -moz-box-shadow:    1px 1px 5px #333;
 }
 img.pw-photo-zoomed {
-	position: absolute;
-	z-index: 100;
-	background: white;
-	box-shadow: 		1px 1px 5px #333;			
-	-webkit-box-shadow:	1px 1px 5px #333;
-	-moz-box-shadow:	1px 1px 5px #333;
+    position: absolute;
+    z-index: 100;
+    background: white;
+    box-shadow:         1px 1px 5px #333;           
+    -webkit-box-shadow: 1px 1px 5px #333;
+    -moz-box-shadow:    1px 1px 5px #333;
 }
 
 
@@ -39,11 +93,18 @@ img.pw-photo-zoomed {
     position:fixed;
     width:100%;
     height:100%;
+    min-width:100%;
+    min-height:100%;
     top:0px;
     left:0px;
     background:#000;
     z-index: 1001;
     overflow:hidden;
+    font-size: 16px;
+    font-family:Verdana;
+}
+#showbox p {
+    margin-bottom:0;
 }
 .unselect {
     -webkit-user-select: none;
@@ -52,24 +113,36 @@ img.pw-photo-zoomed {
     -o-user-select: none;
     user-select: none;
 }
+div.showbox-thc {
+    overflow:hidden;
+    width: 100%;
+	position:relative;
+	top:-999999px;
+}
 #showbox-exit {
-    width:16px;
+    width:140px;
     height:16px;
-    background: url(exit.gif);
+    background: url('exit.gif') no-repeat 100% 0px;
     position:absolute;
     right:10px;
     top:10px;
     z-index: 1002;
     cursor:pointer;
+    color:white;
+    font-family:Verdana;
+    font-size:.8em;
+}
+#showbox-exit:hover {
+    text-decoration:underline;
 }
 #showbox-loader {
     position: absolute;
     top: 50%;
     left:50%;
-    width: 16px;
-    height: 16px;
-    background: #000 url(loader.gif);
-    margin:-80px 0 0 -8px;
+    width: 64px;
+    height: 64px;
+    background-size: 100% auto; /* Ignored by some browsers */
+    background: url(loader.gif) no-repeat;
 }
 #showbox .showbox-image {
     position:relative;
@@ -77,45 +150,68 @@ img.pw-photo-zoomed {
 #showbox .showbox-image img {
     cursor:pointer;
 }
+#showbox .showbox-desc {
+    color:white;
+    margin-top:.05em;
+    padding-left:.2em;
+    font-size:.8em;
+}
 #showbox .showbox-menubar {
     text-align: center;
     width: 100%;
-    font-family: Arial,Tahoma,Serif;
     color: #919191;
     height: 35px;
     position: relative;
 }
-#showbox .showbox-preview {
-    border-top:1px solid #181818;
-    background: #0A0A0A;
-    position:fixed;
-    height: 80px;
+#showbox-menubar {
+    overflow:hidden;
     width:100%;
-    bottom:-75px;
+    position:absolute;
+    position: relative;
+    top:-999999px;
+}
+#showbox .showbox-preview {
+    background: transparent;
+    position:fixed;
+    height: 101px;
+    width:100%;
     left:0px;
     padding: 5px 0 15px 0 ;
     overflow:hidden;
 }
+#showbox .showbox-preview p {
+    text-align: center;
+    color: #919191;
+    font-size: 0.6em;
+    margin-bottom: 2px;
+    margin-top: 2px;
+}
+#showbox .preview-locked {
+}
 #showbox .showbox-pv-lock {
     width:13px;
     height:9px;
-    background: url(lock.gif);
-    position:absolute;
-    right:10px;
-    top:10px;
+    width:26px;
+    height:18px;
+    background-size: 100% auto; /* Ignored by some browsers */
+    background: url(lock.gif) no-repeat;
+    position: absolute;
+    left: 0.5em;
+    bottom: 70px;
     display:none;
 }
 #showbox .showbox-th-counter {
-    text-align:center;
     color: #919191;
-    font-family: Arial,Tahoma,Serif;
-    font-size:12px;
-    height: 15px;
-    margin-bottom: 5px;
+    font-size:.8em;
+    position: absolute;
+    right: 0px;
+    margin-top:.05em;
+    padding-right:.2em;
 }
 .showbox-th-container {
     position:relative;
     width: 90000px;
+    border-top:1px solid #181818;
 }
 .showbox-th {
     position: relative;
@@ -129,19 +225,106 @@ img.pw-photo-zoomed {
 }
 #showbox .showbox-th img{
     position: relative;
+    opacity: 0.8;
+}
+#showbox .showbox-th img:hover{
+    opacity: 1;
 }
 #showbox .showbox-th-active {
     border: 1px #e5e5e5 solid;
     cursor:default !important;
+    opacity: 1;
 }
 /* clearfix ----------------------------------------------------------------- */
 .clearfix:after {
-	visibility: hidden;
-	display: block;
-	font-size: 0;
-	content: " ";
-	clear: both;
-	height: 0;
-	}
+    visibility: hidden;
+    display: block;
+    font-size: 0;
+    content: " ";
+    clear: both;
+    height: 0;
+    }
 * html .clearfix             { zoom: 1; } /* IE6 */
 *:first-child+html .clearfix { zoom: 1; } 
+
+div:-webkit-full-screen {
+    width: 100% !important;
+    position: fixed;
+    top: 0;
+    background: none;
+}
+div:-ms-fullscreen {
+    width: 100% !important;
+    position: fixed;
+    top: 0;
+    background: none;
+}
+div:fullscreen {
+    width: 100% !important;
+    position: fixed;
+    top: 0;
+    background: none;
+}
+/* While in fullscreen, hide any children with class 'tohide' */
+:-webkit-full-screen .tohide {
+  display: none;
+}
+:-moz-full-screen .tohide {
+  display: none;
+}
+:-ms-fullscreen .tohide {
+  display: none;
+}
+:fullscreen .tohide {
+  display: none;
+}
+
+
+/* For small devices like smartphones
+   Unfortunately it appears the stock browser and Dolphin on Android
+   ignore this directive. Chrome on Android respects it but has a bug
+   where it for the @media rule doesn't take into account viewport size
+   so it acts on 2x the real size (4in for 2in). Small devices other
+   than Chrome are assigned an auxiliary style sheet in the code based
+   on their estimated screen size.
+*/
+
+/* Galaxy Tab Pro portrait */
+@media   (min-device-width: 800px) and (max-device-width: 1280px) and (max-device-width: 8.5in) and (orientation: portrait) {
+#showbox .showbox-preview {
+    height: 103px;
+}
+}
+
+/* Galaxy Tab Pro landscape */
+@media (min-device-width: 800px) and (max-device-width: 1280px) and (max-device-width: 13.5in) and (orientation: landscape) {
+#showbox .showbox-preview {
+    height: 83px;
+}
+}
+
+@media (max-device-width: 4in) {
+#showbox .showbox-preview {
+    height: 98px;
+}
+}
+
+
+@media (max-device-height: 7in) and (orientation: portrait) { 
+/* Bigger baseline font for elements inside */
+#showbox {
+	font-size: 48px;
+}
+#showbox .showbox-preview {
+	height: 195px;
+}
+}
+
+@media (max-device-width: 7in) and (orientation: landscape) { 
+#showbox {
+	font-size: 26px;
+}
+#showbox .showbox-preview {
+	height: 130px;
+}
+}
